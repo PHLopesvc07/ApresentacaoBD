@@ -15,7 +15,8 @@ ApresentacaoBD/
 ├── index.html                        # Entrypoint principal da Apresentação Web (GitHub Pages)
 ├── apresentacao.html                 # Espelho local da apresentação interativa
 ├── .nojekyll                         # Bypass de build Jekyll para deploy instantâneo no GitHub Pages
-├── Apresentacao_CouchDB_vs_Couchbase.pptx  # Versão nativa PowerPoint (16:9) com Notas do Orador
+├── Apresentacao_CouchDB_vs_Couchbase_Professor.pdf # Dossiê PDF Completo para Entrega Avaliativa ao Docente
+├── Apresentacao_CouchDB_vs_Couchbase.pptx  # Versão nativa PowerPoint (16:9 Dark Mode) com Notas do Orador
 ├── assets/
 │   ├── css/
 │   │   ├── variables.css             # Design Tokens, paleta de alto contraste e escala fluida TV 50"
@@ -28,7 +29,8 @@ ApresentacaoBD/
 │   ├── docker-compose.yml            # Orquestração dos containers Apache CouchDB 3.3 + Couchbase 7.6
 │   ├── comandos_workshop.sh          # Roteiro de comandos prontos (cURL, Mango, _changes e SQL++)
 │   ├── crud_couchdb_demo.py          # Script Python 3 demonstrando CRUD real + tratamento MVCC (HTTP 409)
-│   └── gerar_pptx.py                 # Gerador automatizado do arquivo PowerPoint (.pptx)
+│   ├── gerar_pptx.py                 # Gerador do PowerPoint moderno (.pptx) com Notas
+│   └── gerar_pdf_professor.py        # Gerador automatizado do Dossiê Acadêmico em PDF (ReportLab)
 └── README.md                         # Documentação técnica e guia operacional do seminário
 ```
 

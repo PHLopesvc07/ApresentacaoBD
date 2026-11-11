@@ -1,6 +1,6 @@
 """
-Gerador do arquivo PowerPoint (.pptx) Widescreen (16:9) com Design Dark Mode
-e Roteiros de Fala embutidos nas Notas do Apresentador para os 7 Integrantes.
+Gerador da Apresentação PowerPoint (.pptx) com Design Moderno, Dinâmico e Profissional
+Tema: Widescreen 16:9, Glassmorphism Dark Mode, Gradientes, Badges e Tipografia Otimizada
 """
 
 from pptx import Presentation
@@ -9,89 +9,114 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
-# Cores do Tema Dark
-BG_DARK = RGBColor(11, 15, 25)        # #0b0f19
-CARD_BG = RGBColor(19, 27, 46)        # #131b2e
-TEXT_WHITE = RGBColor(241, 245, 249)  # #f1f5f9
-TEXT_MUTED = RGBColor(148, 163, 184)  # #94a3b8
-ACCENT_BLUE = RGBColor(56, 189, 248)  # #38bdf8
-ACCENT_ORANGE = RGBColor(249, 115, 22)# #f97316
-ACCENT_GREEN = RGBColor(16, 185, 129) # #10b981
-ACCENT_AMBER = RGBColor(245, 158, 11) # #f59e0b
+# Paleta de Cores Moderna (Cyber/Executive Dark Mode)
+BG_COLOR = RGBColor(6, 10, 20)          # #060a14 - Fundo escuro profundo
+CARD_BG = RGBColor(16, 24, 43)          # #10182b - Card principal
+CARD_ALT_BG = RGBColor(22, 33, 58)      # #16213a - Card secundário
+TOPBAR_BG = RGBColor(11, 17, 31)        # #0b111f - Barra superior
+BORDER_DEFAULT = RGBColor(38, 52, 82)   # #263452 - Borda sutil glass
+BORDER_ORANGE = RGBColor(255, 107, 43)  # #ff6b2b - CouchDB Laranja vibrante
+BORDER_BLUE = RGBColor(0, 210, 255)     # #00d2ff - Couchbase Ciano neon
+BORDER_GREEN = RGBColor(16, 185, 129)   # #10b981 - Verde esmeralda
+BORDER_PURPLE = RGBColor(192, 132, 252) # #c084fc - Roxo neon
+TEXT_WHITE = RGBColor(255, 255, 255)    # Branco puro
+TEXT_MUTED = RGBColor(176, 190, 210)    # Cinza claro legível
+ACCENT_YELLOW = RGBColor(253, 224, 71)  # Destaque #fde047
+ACCENT_CYAN = RGBColor(125, 211, 252)   # Código/Chaves
 
 SLIDES_DATA = [
     {
-        "meta": "SLIDE 1 • INTRODUÇÃO E CONTEXTUALIZAÇÃO",
+        "meta": "MÓDULO 1 • ORIGEM E FUNDAMENTOS ARQUITETURAIS",
         "title": "Apache CouchDB vs. Couchbase Server",
-        "subtitle": "Arquiteturas Documentais Distribuídas: Do Offline-First à Performance Sub-Milissegundo em Memória",
+        "subtitle": "Arquiteturas Documentais: Da Sincronização Offline-First à Performance Sub-Milissegundo em Memória",
         "speaker": "Integrante 1 (Tempo: 2 min | Acumulado: 02:00)",
-        "col1_title": "A Crise do RDBMS Clássico",
-        "col1_items": [
-            "Limites de escalabilidade vertical (Scale-Up) na Web 2.0 e Mobile.",
-            "Impedância Objeto-Relacional: custo de JOINs em dezenas de tabelas.",
-            "Bloqueios pessimistas inviáveis em clusters distribuídos globalmente."
-        ],
-        "col2_title": "Dois Bancos, Duas Filosofias",
-        "col2_items": [
-            "Unidade básica comum: Documentos JSON auto-contidos.",
-            "Apache CouchDB: Foco em HTTP/REST nativo, resiliência e sincronização Offline-First.",
-            "Couchbase: Foco em arquitetura Memory-First, vBuckets e SQL++ (N1QL) em baixa latência."
-        ],
+        "theme": "mixed",
+        "card1": {
+            "title": "🌐 A Crise do RDBMS Clássico",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Limites físicos da escalabilidade vertical (Scale-Up) na Web 2.0 e Mobile.",
+                "Impedância Objeto-Relacional: Custo extremo de JOINs em dezenas de tabelas.",
+                "Bloqueios pessimistas (2PL) inviáveis em clusters geograficamente distribuídos."
+            ]
+        },
+        "card2": {
+            "title": "⚡ O Paradigma NoSQL Documental",
+            "border": BORDER_BLUE,
+            "items": [
+                "Documentos auto-contidos em JSON com objetos e arrays aninhados.",
+                "Localidade de Dados: Leitura de um agregado completo em um único salto de I/O.",
+                "Schema-on-read: Flexibilidade sem bloqueios de migração ALTER TABLE."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 1 (2 minutos):\n\n"
             "Bom dia/Boa tarde a todos. Hoje nossa equipe vai apresentar uma análise arquitetural profunda sobre dois bancos de dados NoSQL orientados a documentos que frequentemente causam confusão pelo nome, mas que resolveram problemas completamente distintos na engenharia de software: o Apache CouchDB e o Couchbase.\n\n"
-            "Quando olhamos para as limitações dos bancos relacionais tradicionais em sistemas distribuídos de larga escala, esbarramos em dois gargalos clássicos: a impedância objeto-relacional e o custo de manter transações distribuídas com bloqueio pessimista. Tanto o CouchDB quanto o Couchbase adotam o JSON como unidade básica de armazenamento, mas como veremos nos próximos 40 minutos, enquanto um nasceu para dominar a web descentralizada e redes instáveis, o outro foi projetado para entregar latência sub-milissegundo em clusters massivos orientados a memória."
+            "Quando olhamos para as limitações dos bancos relacionais tradicionais em sistemas distribuídos de larga escala, esbarramos em dois gargalos clássicos: a impedância objeto-relacional e o custo de manter transações distribuídas com bloqueio pessimista. Tanto o CouchDB quanto o Couchbase adotam o JSON como unidade básica de armazenamento, mas enquanto um nasceu para dominar a web descentralizada e redes instáveis, o outro foi projetado para entregar latência sub-milissegundo em clusters massivos orientados a memória."
         )
     },
     {
-        "meta": "SLIDE 2 • GENEALOGIA HISTÓRICA",
+        "meta": "SLIDE 2 • GENEALOGIA HISTÓRICA E FUSÃO",
         "title": "Origem Histórica: A Fusão de 2011 e a Grande Divergência",
-        "subtitle": "Como CouchOne + Membase deram origem ao Couchbase enquanto o Apache CouchDB seguiu independente",
+        "subtitle": "Como CouchOne + Membase formaram a Couchbase Inc. enquanto o Apache CouchDB seguiu independente",
         "speaker": "Integrante 1 (Tempo: 2 min | Acumulado: 04:00)",
-        "col1_title": "Linha do Tempo Histórica",
-        "col1_items": [
-            "2005: Damien Katz (ex-IBM Lotus Notes) cria o CouchDB (Cluster Of Unreliable Commodity Hardware).",
-            "2008: CouchDB torna-se projeto Top-Level da Apache Software Foundation.",
-            "2009–2010: Surgem a CouchOne (CouchDB) e a Membase (criadores do Memcached).",
-            "Fevereiro 2011: Fusão CouchOne + Membase = Couchbase Inc."
-        ],
-        "col2_title": "A Divergência de Motores Internos",
-        "col2_items": [
-            "Couchbase Server NÃO é o Apache CouchDB renomeado.",
-            "Couchbase uniu o motor KV em RAM do Membase com indexação JSON e SQL++.",
-            "Apache CouchDB manteve seu núcleo Erlang/OTP sob governança da Apache Foundation."
-        ],
+        "theme": "mixed",
+        "card1": {
+            "title": "🪶 O Caminho do Apache CouchDB (ASF)",
+            "border": BORDER_ORANGE,
+            "items": [
+                "2005: Damien Katz (ex-IBM Lotus Notes) cria o CouchDB em Erlang/OTP.",
+                "2008: Torna-se projeto Top-Level oficial da Apache Software Foundation.",
+                "2009: Fundação da CouchOne para suporte corporativo ao CouchDB.",
+                "Fiel à arquitetura: Armazenamento Append-Only e protocolo HTTP/REST nativo."
+            ]
+        },
+        "card2": {
+            "title": "⚡ A Criação do Couchbase Server",
+            "border": BORDER_BLUE,
+            "items": [
+                "2010: Surgimento do Membase (persistência + replicação para o Memcached).",
+                "Fevereiro 2011: FUSÃO CouchOne + Membase = Couchbase Inc.",
+                "Divergência: Substituição do motor do CouchDB pelo motor em RAM do Membase.",
+                "Adição de particionamento por vBuckets, N1QL (SQL++) e índices GSI."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 1 (2 minutos):\n\n"
-            "Para entender por que esses dois bancos têm 'Couch' no nome, precisamos voltar a 2005. Damien Katz, que trabalhou no IBM Lotus Notes, criou o CouchDB inspirado em bancos de documentos replicados. O próprio nome COUCH é um acrônimo para Cluster Of Unreliable Commodity Hardware.\n\n"
-            "Em paralelo, a equipe por trás do famoso sistema de cache distribuído Memcached criou o Membase, que adicionava persistência em disco e replicação ao Memcached. Em 2011, a empresa comercial por trás do CouchDB, chamada CouchOne, fundiu-se com a Membase, formando a Couchbase Inc.\n\n"
-            "O ponto crucial para qualquer arquiteto de dados é entender o que aconteceu depois: o produto Couchbase Server não é um CouchDB com outro nome. A engenharia do Couchbase fundiu o motor de chave-valor em memória de altíssima velocidade do Membase com a capacidade de indexar JSON. Enquanto isso, a comunidade aberta manteve o Apache CouchDB evoluindo de forma independente sob a Apache Foundation."
+            "Para entender por que esses dois bancos têm 'Couch' no nome, precisamos voltar a 2005. Damien Katz criou o CouchDB inspirado em bancos distribuídos replicados. Em paralelo, a equipe por trás do Memcached criou o Membase. Em 2011, houve a fusão oficial formando a Couchbase Inc.\n\n"
+            "O ponto crucial é que o Couchbase Server não é um CouchDB renomeado. A engenharia do Couchbase uniu o motor de chave-valor em memória do Membase com indexação JSON. Enquanto isso, a comunidade aberta manteve o Apache CouchDB evoluindo de forma independente sob a Apache Foundation."
         )
     },
     {
-        "meta": "SLIDE 3 • BIFURCAÇÃO FILOSÓFICA",
-        "title": "Bifurcação Filosófica: Web Nativa vs. Performance Memory-First",
-        "subtitle": "Decisões opostas em protocolo de rede, controle de concorrência e caminho de I/O",
+        "meta": "SLIDE 3 • BIFURCAÇÃO FILOSÓFICA FUNDAMENTAL",
+        "title": "Bifurcação Filosófica: Web Nativa vs. Memory-First",
+        "subtitle": "Decisões opostas de protocolos, hierarquia de memória e tolerância a partições",
         "speaker": "Integrante 1 (Tempo: 2 min | Acumulado: 06:00)",
-        "col1_title": "Apache CouchDB (Sync & Web-First)",
-        "col1_items": [
-            "Protocolo primário: HTTP/REST nativo (porta 5984) sem SDK proprietário obrigatório.",
-            "Caminho de escrita: Disk-First (Append-Only B+Tree).",
-            "Concorrência: MVCC explícito no nível do documento via árvore _rev.",
-            "Foco: Replicação Master-Master, Offline-First e tolerância a partições (AP)."
-        ],
-        "col2_title": "Couchbase Server (Memory-First & Scale)",
-        "col2_items": [
-            "Protocolo primário: Binário sobre TCP (porta 11210) com SDK ciente da topologia.",
-            "Caminho de escrita: Memory-First (Cache gerenciado em RAM integrado).",
-            "Concorrência: vBucket único ativo (CP), CAS otimista e transações ACID.",
-            "Foco: Latência sub-milissegundo, escala elástica e consultas SQL++ (N1QL)."
-        ],
+        "theme": "mixed",
+        "card1": {
+            "title": "🟧 Apache CouchDB: Sync & Web-First",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Protocolo 100% HTTP/REST nativo (porta 5984) acessível sem drivers especiais.",
+                "Caminho Disk-First: Append-Only B+Tree imune a quedas de energia.",
+                "Concorrência: MVCC explícito no documento via campo _rev.",
+                "Foco: Tolerância a partições (AP), replicação Multi-Master e Offline-First."
+            ]
+        },
+        "card2": {
+            "title": "🟦 Couchbase Server: Memory-First & Scale",
+            "border": BORDER_BLUE,
+            "items": [
+                "Protocolo binário sobre TCP (porta 11210) com SDK inteligente ciente do mapa do cluster.",
+                "Caminho Memory-First: Leituras e escritas servidas diretamente do cache em RAM.",
+                "Consistência: vBucket único ativo por chave (CP por padrão) + CAS e transações ACID.",
+                "Foco: Vazão extrema, latência em microssegundos e consultas SQL++ (N1QL)."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 1 (2 minutos):\n\n"
-            "Essa separação gerou duas filosofias de engenharia opostas.\n"
-            "De um lado, o Apache CouchDB fala HTTP de forma nativa. Você conversa com o banco diretamente usando cURL ou o navegador. Ele não usa bloqueios (locks); em vez disso, obriga a aplicação a lidar com revisões explícitas através de Multi-Version Concurrency Control (MVCC), porque seu objetivo maior é permitir que dois nós desconectados aceitem escritas e sincronizem depois sem corromper dados.\n\n"
-            "Do outro lado, o Couchbase opera sobre um protocolo binário enxuto via TCP. Ele coloca uma camada de memória RAM gerenciada na frente do disco. Toda escrita vai para a RAM e retorna sucesso em microssegundos, sendo persistida de forma assíncrona em background. Agora passo a palavra para o Integrante 2, que vai dissecar o motor interno do Apache CouchDB."
+            "Essa separação gerou duas filosofias de engenharia opostas. O Apache CouchDB fala HTTP nativamente, grava em disco append-only e expõe o campo _rev para garantir sincronização entre servidores desconectados.\n\n"
+            "Já o Couchbase coloca um cache gerenciado em RAM na frente do disco, confirmando operações em microssegundos e roteando via vBuckets. Agora passo a palavra para o Integrante 2, que vai dissecar o motor interno do Apache CouchDB."
         )
     },
     {
@@ -99,474 +124,605 @@ SLIDES_DATA = [
         "title": "CouchDB: Motor Append-Only e Indexação B+Tree",
         "subtitle": "Imutabilidade em disco, concorrência lock-free em Erlang e imunidade a corrupção",
         "speaker": "Integrante 2 (Tempo: 2 min | Acumulado: 08:00)",
-        "col1_title": "Motor Append-Only (Tail-Append)",
-        "col1_items": [
-            "Escrito em Erlang/OTP: modelo de atores, alta concorrência e isolamento de falhas.",
-            "Arquivos de dados (.couch) jamais sofrem sobrescrita no lugar (Zero In-Place Update).",
-            "Novas revisões, nós modificados da B+Tree e o novo Database Header (Tail Header) vão para o final do arquivo."
-        ],
-        "col2_title": "Garantias e Processo de Compaction",
-        "col2_items": [
-            "Leituras nunca bloqueiam escritas (leitores acessam snapshots imutáveis da árvore B+).",
-            "Imunidade a quedas de energia: basta ler de trás para frente até achar o último Tail Header íntegro.",
-            "Exige Compaction periódico em background para limpar revisões obsoletas e recuperar espaço em disco."
-        ],
+        "theme": "couchdb",
+        "card1": {
+            "title": "⚙️ Motor Append-Only (Tail-Append)",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Construído em Erlang/OTP: Processos leves isolados e tolerância a falhas (Let it crash).",
+                "Zero In-Place Updates: Blocos de disco jamais são sobrescritos.",
+                "Novas revisões, nós alterados da B+Tree e o Tail Header vão para o final do arquivo.",
+                "Tail Header no fim do arquivo aponta para a nova raiz da árvore B+ após cada commit."
+            ]
+        },
+        "card2": {
+            "title": "🛡️ Garantias e Processo de Compaction",
+            "border": BORDER_GREEN,
+            "items": [
+                "Leituras Lock-Free: Leitores navegam snapshots imutáveis sem bloquear escritores.",
+                "Imunidade a corrupção: Em queda de energia, varre de trás para frente até o último header íntegro.",
+                "Compaction em background: Reescreve o arquivo mantendo apenas a revisão ativa mais recente.",
+                "Trade-off: Crescimento contínuo de disco até a execução do Compaction."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 2 (2 minutos):\n\n"
-            "Obrigado. Vamos mergulhar na engenharia interna do Apache CouchDB. Primeiro, ele é escrito em Erlang, a linguagem criada pela Ericsson para comutadores telefônicos, famosa por concorrência massiva e isolamento de falhas.\n\n"
-            "O coração do armazenamento do CouchDB é sua estrutura Append-Only B+Tree. Diferente de bancos que sobrescrevem blocos de disco no lugar, o CouchDB jamais altera um byte já gravado. Quando você atualiza um documento ou atualiza os nós da árvore B+ de índices, ele grava os novos blocos de dados e o novo cabeçalho do banco sempre no final do arquivo.\n\n"
-            "Qual é a vantagem arquitetural disso? Primeiro, leituras nunca bloqueiam escritas e escritas nunca bloqueiam leituras. Segundo, o banco é virtualmente imune à corrupção por queda brusca de energia: quando o processo sobe novamente, ele apenas varre o final do arquivo até achar o último Tail Header íntegro. O trade-off é o consumo de espaço em disco, que exige um processo de Compactação (Compaction) para reescrever o arquivo mantendo apenas a revisão mais recente."
+            "Obrigado. Vamos mergulhar na engenharia do CouchDB. Escrito em Erlang, seu núcleo é a B+Tree Append-Only. Ele jamais altera bytes já gravados; qualquer modificação grava novos dados no final do arquivo junto a um novo Tail Header.\n\n"
+            "Isso traz duas vantagens monumentais: leituras nunca bloqueiam escritas, e o banco é imune a corrupções por queda de energia. O trade-off é que arquivos crescem rápido, exigindo o processo periódico de Compaction."
         )
     },
     {
-        "meta": "SLIDE 5 • CONTROLE DE CONCORRÊNCIA MVCC NO COUCHDB",
+        "meta": "SLIDE 5 • CONTROLE DE CONCORRÊNCIA NO COUCHDB",
         "title": "CouchDB: MVCC Explícito (_rev) e Árvore de Revisões",
-        "subtitle": "Como cada documento opera como um repositório Git para lidar com conflitos distribuídos",
+        "subtitle": "Como cada documento funciona como um mini-repositório Git para resolver conflitos distribuídos",
         "speaker": "Integrante 2 (Tempo: 2 min | Acumulado: 10:00)",
-        "col1_title": "Ciclo Optimistic Locking (_id + _rev)",
-        "col1_items": [
-            "Todo documento possui _id e _rev no formato <N>-<hash_md5> (ex: 2-7051cbe...).",
-            "Para atualizar (PUT) ou remover (DELETE), o cliente é obrigado a informar o _rev atual.",
-            "Se o _rev divergir da ponta da árvore no servidor, retorna imediatamente HTTP 409 Conflict.",
-            "Deleções gravam uma revisão Tombstone (\"_deleted\": true) no final do arquivo."
-        ],
-        "col2_title": "Conflitos Determinísticos na Replicação",
-        "col2_items": [
-            "Edições concorrentes em nós desconectados criam ramos paralelos na árvore do documento (_conflicts).",
-            "Algoritmo determinístico (baseado na geração e hash ASCII, sem depender de relógio NTP) elege o mesmo vencedor em todos os nós.",
-            "Revisões perdedoras são preservadas até a aplicação realizar o merge."
-        ],
+        "theme": "couchdb",
+        "card1": {
+            "title": "🔐 Ciclo Optimistic Locking (_id + _rev)",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Identificador de revisão: <geração>-<hash_md5> (ex: 2-7051cbe5...).",
+                "Atualizações exigem que o cliente envie o _rev atual na requisição HTTP PUT.",
+                "Conflito imediato: Se o _rev for obsoleto, retorna HTTP 409 Conflict.",
+                "Deleções gravam um Tombstone (\"_deleted\": true) preservando a linha histórica."
+            ]
+        },
+        "card2": {
+            "title": "🌿 Conflitos na Replicação Master-Master",
+            "border": BORDER_PURPLE,
+            "items": [
+                "Edições simultâneas em nós offline criam ramificações na árvore de revisões.",
+                "Eleição determinística: Todos os nós elegem o mesmo vencedor comparando hashes (sem NTP!).",
+                "Revisões perdedoras são mantidas em _conflicts até que a aplicação faça o merge.",
+                "Zero perda silenciosa de dados em partições de rede."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 2 (2 minutos):\n\n"
-            "Como o CouchDB garante consistência ACID no nível do documento sem usar locks pessimistas? Através de MVCC (Multi-Version Concurrency Control) exposto diretamente na API HTTP via o campo _rev.\n\n"
-            "Cada documento no CouchDB não é apenas um registro, mas sim uma árvore de revisões parecida com um repositório Git. Sempre que você cria um documento, o CouchDB gera um _rev começando com 1- seguido de um hash determinístico do conteúdo. Para atualizar esse documento via PUT, você é obrigado a informar esse _rev. Se outro cliente atualizou o documento um milissegundo antes de você, o CouchDB rejeita sua escrita imediatamente com um erro HTTP 409 Conflict.\n\n"
-            "Já em cenários de replicação entre dois servidores desconectados, ambos podem aceitar atualizações para o mesmo documento. Quando a rede volta e eles sincronizam, o CouchDB guarda ambas as ramificações na árvore do documento e aplica um algoritmo determinístico baseado no hash das revisões para eleger exatamente o mesmo vencedor em todos os nós do cluster."
+            "O CouchDB garante consistência através de MVCC no nível de documento. Cada documento possui um histórico de revisões. Para alterar um registro, você deve enviar o _rev atual. Se alguém atualizou antes, o CouchDB responde com HTTP 409 Conflict.\n\n"
+            "Em replicação distribuída entre nós desconectados, se houver escritas concorrentes, o CouchDB mantém ambas as revisões e usa um algoritmo determinístico baseado no hash para eleger a versão vencedora em todos os servidores sem depender de relógios físicos."
         )
     },
     {
         "meta": "SLIDE 6 • CONSULTAS E REPLICAÇÃO NO COUCHDB",
-        "title": "CouchDB: Views MapReduce, Mango (_find) e _changes Feed",
-        "subtitle": "Indexação incremental em B-Tree e o protocolo de replicação contínua",
+        "title": "CouchDB: MapReduce, Mango Query e _changes Feed",
+        "subtitle": "Indexação incremental em B-Tree e o protocolo de replicação contínua em tempo real",
         "speaker": "Integrante 2 (Tempo: 2 min | Acumulado: 12:00)",
-        "col1_title": "Mecanismos de Consulta (Views & Mango)",
-        "col1_items": [
-            "Design Documents (_design/): código de Views armazenado como documento no banco.",
-            "MapReduce: função map(doc) emite pares emit(key, val) indexados incrementalmente; reduce calcula agregações nos nós internos da B-Tree.",
-            "Mango Queries (/_find): consultas declarativas em JSON (seletores $eq, $gt, $in) introduzidas no CouchDB 2.0+."
-        ],
-        "col2_title": "O Endpoint /_changes e Replicação",
-        "col2_items": [
-            "/_changes: expõe o log sequencial de mutações do banco em tempo real (longpoll / continuous / eventsource).",
-            "Couch Replication Protocol: lê o feed _changes da origem -> calcula diferenças via _revs_diff -> transfere apenas os deltas via _bulk_docs."
-        ],
+        "theme": "couchdb",
+        "card1": {
+            "title": "🗺️ Consultas: MapReduce & Mango (_find)",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Design Documents (_design/): Funções map(doc) em JavaScript emitindo chaves para B-Trees.",
+                "Reduções pré-computadas (_count, _sum) armazenadas nos nós internos da B-Tree.",
+                "Mango Query (POST /_find): Sintaxe declarativa em JSON introduzida no CouchDB 2.0+.",
+                "Suporte a índices secundários declarativos via POST /_index sem escrever código manual."
+            ]
+        },
+        "card2": {
+            "title": "📡 O Endpoint _changes e Replicação",
+            "border": BORDER_GREEN,
+            "items": [
+                "Log de eventos sequencial (update_seq) exposto em tempo real via HTTP Stream.",
+                "Couch Replication Protocol: Origem lê _changes e pergunta deltas via _revs_diff.",
+                "Transferência de documentos em lote via _bulk_docs com reconexão automática.",
+                "Compatibilidade nativa com PouchDB no navegador e dispositivos móveis."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 2 (2 minutos):\n\n"
-            "Para consultar dados além da chave primária _id, o CouchDB historicamente utiliza Design Documents contendo funções MapReduce escritas em JavaScript. A função map inspeciona cada documento e emite chaves e valores que são gravados em uma B-tree separada. As funções de reduce são armazenadas diretamente nos nós intermediários da B-tree. A partir da versão 2.0, o CouchDB também ganhou o Mango Query (_find), permitindo buscas declarativas em JSON.\n\n"
-            "Por fim, temos a joia da coroa do CouchDB: o endpoint _changes. Como o armazenamento é append-only, o banco mantém um número de sequência incremental para cada alteração. É exatamente sobre o _changes que funciona o Protocolo de Replicação do CouchDB: um replicador lê o feed de mudanças da origem, pergunta ao destino quais revisões ele ainda não tem via _revs_diff, e envia apenas os documentos necessários. Agora passo a palavra ao Integrante 3."
+            "Para buscas, o CouchDB oferece Views MapReduce em JavaScript e o moderno Mango Query, que usa filtros declarativos em JSON. Mas o verdadeiro motor do CouchDB é o endpoint _changes.\n\n"
+            "Como o armazenamento é append-only, toda mutação ganha um número de sequência. O protocolo de replicação lê esse feed, identifica diferenças e transfere apenas os deltas. Passo agora ao Integrante 3 para explicar a arquitetura do Couchbase."
         )
     },
     {
         "meta": "SLIDE 7 • ARQUITETURA INTERNA COUCHBASE SERVER",
-        "title": "Couchbase: Arquitetura Memory-First e Particionamento por vBuckets",
-        "subtitle": "Cache gerenciado integrado, protocolo DCP e roteamento Single-Hop sem proxies",
+        "title": "Couchbase: Memory-First e Particionamento por vBuckets",
+        "subtitle": "Cache gerenciado integrado, protocolo binário DCP e roteamento direto Single-Hop",
         "speaker": "Integrante 3 (Tempo: 2 min | Acumulado: 14:00)",
-        "col1_title": "Caminho de Dados Memory-First (KV)",
-        "col1_items": [
-            "Leituras e escritas ocorrem diretamente no cache gerenciado em RAM (latência em microssegundos).",
-            "Protocolo interno DCP (Database Change Protocol) propaga mutações em memória para:",
-            "1. Replication Queue (RAM de outros nós do cluster).",
-            "2. Persistence Queue (Storage engines Couchstore / Magma em disco)."
-        ],
-        "col2_title": "Particionamento Estático: 1024 vBuckets",
-        "col2_items": [
-            "Cada Bucket é dividido fixamente em 1024 vBuckets (partições lógicas).",
-            "Cálculo no SDK: vBucket_ID = CRC32(Document_Key) % 1024.",
-            "O SDK mantém o Cluster Map em memória e fala direto via TCP com o nó dono do vBucket ativo (Single-Hop, zero proxies)."
-        ],
+        "theme": "couchbase",
+        "card1": {
+            "title": "🚀 Caminho de Dados Memory-First (KV)",
+            "border": BORDER_BLUE,
+            "items": [
+                "Leituras e escritas passam obrigatoriamente pela memória RAM gerenciada.",
+                "Confirmação de escrita para a aplicação em microssegundos (sub-milissegundo).",
+                "Protocolo interno DCP: Stream binário em memória para filas assíncronas.",
+                "Replication Queue alimenta réplicas em RAM; Persistence Queue grava em disco NVMe."
+            ]
+        },
+        "card2": {
+            "title": "🧩 Particionamento Fixo: 1024 vBuckets",
+            "border": BORDER_GREEN,
+            "items": [
+                "Todo bucket é dividido estaticamente em exatamente 1024 vBuckets.",
+                "Roteamento determinístico no SDK: vBucket_ID = CRC32(Key) % 1024.",
+                "SDK mantém o Cluster Map em RAM e conecta direto no nó ativo daquele vBucket.",
+                "Zero nós proxies ou gargalos intermediários (Roteamento Single-Hop)."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 3 (2 minutos):\n\n"
-            "Obrigado. Entrando agora na engenharia do Couchbase, mudamos completamente de paradigma. Enquanto o CouchDB vai ao disco a cada operação, o Couchbase adota uma arquitetura Memory-First.\n\n"
-            "Quando a sua aplicação faz um GET ou UPSERT no Couchbase, a operação acontece diretamente na memória RAM gerenciada pelo Data Service. Assim que o dado é gravado na RAM, o servidor já pode confirmar a escrita em frações de milissegundo, enquanto o protocolo interno DCP coloca essa mutação em duas filas assíncronas: uma para replicar na RAM de outros nós e outra para persistir em disco.\n\n"
-            "Como o Couchbase distribui dados sem usar nós roteadores que adicionam latência? Através dos vBuckets. Todo bucket é dividido de forma fixa em 1024 partições lógicas chamadas vBuckets. O SDK aplica um hash CRC32 na chave do documento, faz módulo 1024 e consulta o Cluster Map, abrindo conexão TCP direto com o servidor onde aquele vBucket está ativo."
+            "Obrigado. No Couchbase mudamos completamente de paradigma: é uma arquitetura Memory-First. As escritas vão para a RAM gerenciada pelo Data Service e retornam confirmação imediata em frações de milissegundo, enquanto o protocolo interno DCP propaga os dados para réplicas e disco.\n\n"
+            "Para distribuir a carga sem proxies que adicionam latência, o Couchbase divide cada bucket em 1024 vBuckets. O SDK calcula o hash CRC32 da chave e fala diretamente com o nó que possui o vBucket ativo em um único salto TCP."
         )
     },
     {
-        "meta": "SLIDE 8 • ESCALABILIDADE MULTI-DIMENSIONAL (MDS)",
-        "title": "Couchbase: Arquitetura Multi-Service e Multi-Dimensional Scaling",
-        "subtitle": "Isolamento de workloads em hardware específico para eliminar o efeito 'Noisy Neighbor'",
+        "meta": "SLIDE 8 • MULTI-DIMENSIONAL SCALING (MDS)",
+        "title": "Couchbase: Arquitetura Multi-Service e Isolamento MDS",
+        "subtitle": "Eliminando o efeito 'Noisy Neighbor' ao desacoplar CPU, RAM e I/O em nós especializados",
         "speaker": "Integrante 3 (Tempo: 2 min | Acumulado: 16:00)",
-        "col1_title": "O Problema dos Clusters Homogêneos",
-        "col1_items": [
-            "Em bancos NoSQL tradicionais, todos os nós executam armazenamento, indexação e queries simultaneamente.",
-            "Uma consulta analítica pesada consome CPU/I/O e degrada a latência das leituras operacionais por chave."
-        ],
-        "col2_title": "Os 6 Serviços Desacoplados do Couchbase (MDS)",
-        "col2_items": [
-            "1. Data Service (KV): Otimizado para alta memória RAM.",
-            "2. Index Service (GSI): Otimizado para RAM e SSDs NVMe.",
-            "3. Query Service (N1QL/SQL++): Otimizado para múltiplos núcleos de CPU.",
-            "4. Search (FTS/Vector), 5. Analytics (MPP Colunar) e 6. Eventing (Triggers JS)."
-        ],
+        "theme": "couchbase",
+        "card1": {
+            "title": "❌ O Problema dos Clusters Homogêneos",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Bancos NoSQL clássicos executam armazenamento, índices e queries no mesmo nó.",
+                "Efeito Vizinho Barulhento: Uma consulta analítica pesada consome toda a CPU.",
+                "Queda drástica de throughput nas operações de leitura e escrita operacionais."
+            ]
+        },
+        "card2": {
+            "title": "✔ Solução MDS do Couchbase (6 Serviços)",
+            "border": BORDER_BLUE,
+            "items": [
+                "Data Service (KV): Nós com alta RAM para operações por chave sub-ms.",
+                "Index Service (GSI): Nós com RAM/NVMe mantendo índices globais secundários.",
+                "Query Service (SQL++): Nós com múltiplos núcleos de CPU para parsing e joins.",
+                "Search (FTS e Vetores IA), Analytics (MPP Colunar) e Eventing (Serverless JS)."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 3 (2 minutos):\n\n"
-            "Outro diferencial arquitetural gigantesco do Couchbase é o Multi-Dimensional Scaling (MDS), sustentado pela arquitetura Multi-Service.\n\n"
-            "Na maioria dos bancos NoSQL distribuídos, cada nó do cluster executa todas as tarefas: guarda dados, atualiza índices e processa consultas pesadas. Isso cria o efeito do 'vizinho barulhento': uma query analítica complexa consome toda a CPU e derruba a latência das leituras por chave primária.\n\n"
-            "O Couchbase separa o banco em seis serviços independentes: Data, Index, Query, Full-Text Search, Analytics e Eventing. Com o MDS, podemos colocar o Data Service em máquinas com muita RAM, o Query Service em máquinas com muita CPU e o Index Service em máquinas com NVMe ultrarrápidos."
+            "Outro grande diferencial do Couchbase é o Multi-Dimensional Scaling (MDS). Em clusters homogêneos tradicionais, todos os nós fazem tudo, o que causa interferência entre queries pesadas e leituras simples.\n\n"
+            "Com o MDS, o Couchbase desacopla o banco em serviços independentes: Data para memória, Query para processamento de CPU e Index para SSDs rápidos. Mutações fluem entre os nós via protocolo DCP sem competir por recursos."
         )
     },
     {
         "meta": "SLIDE 9 • N1QL (SQL++) E ÍNDICES GSI",
-        "title": "Couchbase: Scopes/Collections, N1QL (SQL++) e Índices GSI",
-        "subtitle": "Consultando documentos JSON aninhados com toda a expressividade do ANSI SQL",
+        "title": "Couchbase: Hierarquia Lógica, SQL++ (N1QL) e GSI",
+        "subtitle": "A expressividade do ANSI SQL adaptada nativamente a documentos JSON aninhados",
         "speaker": "Integrante 3 (Tempo: 2 min | Acumulado: 18:00)",
-        "col1_title": "Hierarquia Lógica e SQL++ (N1QL)",
-        "col1_items": [
-            "Hierarquia em 3 níveis (v7+): Bucket (Database) -> Scope (Schema) -> Collection (Tabela).",
-            "N1QL / SQL++: Suporta SELECT, ANSI JOINs entre documentos, GROUP BY, CTEs (WITH) e transações ACID multi-documento.",
-            "Operadores nativos para arrays JSON: UNNEST (achata arrays em linhas) e NEST."
-        ],
-        "col2_title": "GSI (Global Secondary Indexes)",
-        "col2_items": [
-            "Evita o padrão Scatter-Gather: índices ficam centralizados ou particionados no Index Service.",
-            "Suporta Memory-Optimized Indexes (MOI) baseados em Skip-Lists lock-free em RAM.",
-            "Covering Indexes permitem responder queries SQL++ diretamente do Index Service sem tocar no Data Service."
-        ],
+        "theme": "couchbase",
+        "card1": {
+            "title": "🗂️ Mapeamento Relacional e N1QL",
+            "border": BORDER_BLUE,
+            "items": [
+                "Hierarquia em 3 níveis (v7+): Bucket (DB) ➔ Scope (Schema) ➔ Collection (Tabela).",
+                "N1QL / SQL++: Suporte completo a ANSI JOINs entre documentos distintos.",
+                "Operador UNNEST: Transforma arrays internos do JSON em linhas relacionais.",
+                "Suporte a transações ACID multi-documento distribuídas no cluster."
+            ]
+        },
+        "card2": {
+            "title": "⚡ Global Secondary Indexes (GSI)",
+            "border": BORDER_GREEN,
+            "items": [
+                "Índices globais concentrados ou particionados nos nós de Index Service.",
+                "Evita Scatter-Gather: O Query Service consulta o GSI e vai direto no vBucket exato.",
+                "Memory-Optimized Indexes (MOI): Índices mantidos 100% em RAM usando Skip-Lists.",
+                "Covering Indexes respondem queries complexas em menos de 2 milissegundos."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 3 (2 minutos):\n\n"
-            "E como nós consultamos e organizamos dados no Couchbase? A partir da versão 7, o Couchbase introduziu uma hierarquia de três níveis: Bucket, Scope e Collection, permitindo mapeamento direto de bancos relacionais.\n\n"
-            "Mas a grande inovação para desenvolvedores é o N1QL (pronuncia-se Nickel), hoje padronizado como SQL++. É uma implementação completa de ANSI SQL adaptada para JSON. Você escreve SELECT, WHERE, GROUP BY e até INNER JOIN entre coleções diferentes, além de operadores específicos para JSON como UNNEST, que transforma elementos de um array interno em linhas relacionais.\n\n"
-            "Para que o N1QL seja rápido e não faça scatter-gather batendo em todos os nós de dados, o Couchbase usa GSI (Global Secondary Indexes). Passo agora a palavra ao Integrante 4."
+            "A partir da versão 7, o Couchbase adotou a hierarquia Bucket, Scope e Collection, facilitando a transição de quem vem do modelo relacional. E com o N1QL (SQL++), você escreve ANSI SQL padrão com JOINs, agregações e o operador UNNEST para desmembrar arrays JSON.\n\n"
+            "Para acelerar o SQL++, o Couchbase usa GSI (Global Secondary Indexes), evitando varrer todos os nós do cluster. Passo a palavra agora ao Integrante 4 para discutir os casos de mercado do CouchDB."
         )
     },
     {
-        "meta": "SLIDE 10 • POSICIONAMENTO DE MERCADO: APACHE COUCHDB",
-        "title": "Onde o Apache CouchDB Brilha: O Rei do Offline-First e Edge",
-        "subtitle": "Sincronização bidirecional resiliente com PouchDB e baixo consumo de hardware",
+        "meta": "SLIDE 10 • CASOS DE USO DO APACHE COUCHDB",
+        "title": "Onde o Apache CouchDB Brilha: Offline-First e Edge",
+        "subtitle": "Sincronização bidirecional resiliente com PouchDB em ambientes sem conectividade",
         "speaker": "Integrante 4 (Tempo: 2m45s | Acumulado: 20:45)",
-        "col1_title": "O Ecossistema CouchDB + PouchDB",
-        "col1_items": [
-            "PouchDB implementa o protocolo CouchDB em JavaScript dentro do navegador (IndexedDB) ou mobile (SQLite).",
-            "Aplicações leem e gravam localmente com latência zero mesmo 100% desconectadas da internet.",
-            "Sincronização bidirecional automática em 1 linha: db.sync(remoteCouchDB, { live: true, retry: true })."
-        ],
-        "col2_title": "Cenários Ideais de Aplicação",
-        "col2_items": [
-            "Sistemas de campo sem conectividade confiável (aviação, zonas rurais, navios, plataformas e hospitais móveis).",
-            "Dispositivos IoT e Gateways de Edge Computing com pouca RAM (64MB a 256MB).",
-            "Catálogos e registros replicados em topologias Multi-Primary geograficamente dispersas."
-        ],
+        "theme": "couchdb",
+        "card1": {
+            "title": "📱 Ecossistema CouchDB + PouchDB",
+            "border": BORDER_ORANGE,
+            "items": [
+                "PouchDB executa no navegador (IndexedDB) ou mobile/Electron (SQLite).",
+                "Aplicações funcionam 100% desconectadas com zero latência de rede.",
+                "Sincronização bidirecional em uma linha: localDB.sync(remoteCouchDB).",
+                "Retomada automática após quedas de conexão sem perda de transações."
+            ]
+        },
+        "card2": {
+            "title": "🛰️ Cenários Ideais de Engenharia",
+            "border": BORDER_GREEN,
+            "items": [
+                "Operações remotas de campo: Mineração, plataformas de petróleo, aviação e saúde rural.",
+                "Dispositivos IoT e Edge Computing com baixa memória (64 MB a 256 MB de RAM).",
+                "Repositórios descentralizados em filiais autônomas com sincronização via satélite.",
+                "Backends leves onde a infraestrutura não justifica clusters complexos em memória."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 4 (2 minutos e 45 segundos):\n\n"
-            "Obrigado. Agora que compreendemos as duas arquiteturas, surge a pergunta essencial de um arquiteto de soluções: quando escolher cada um? Vamos começar pelo Apache CouchDB.\n\n"
-            "O CouchDB é imbatível quando o requisito principal do sistema é Offline-First e Sincronização na Borda (Edge). Graças ao seu protocolo de replicação sobre HTTP e ao modelo de revisões _rev, surgiu o PouchDB: um banco em JavaScript que roda direto no navegador do usuário ou dentro de um app React Native/Electron.\n\n"
-            "Imagine um aplicativo usado por médicos em regiões remotas da Amazônia ou técnicos de manutenção dentro de minas subterrâneas. O aplicativo grava dados localmente no PouchDB com zero latência de rede. Quando o dispositivo encontra sinal por 30 segundos, uma única linha de código aciona a replicação contínua com o Apache CouchDB central."
+            "Obrigado. Quando escolher o Apache CouchDB? A resposta é clara: quando o foco for Offline-First e Sincronização na Borda. Pareado ao PouchDB, ele permite que aplicações web e mobile leiam e gravem localmente no aparelho.\n\n"
+            "Imagine técnicos de campo em plataformas de petróleo ou equipes de socorro em áreas sem internet. Os dados são salvos localmente e, quando surge sinal por poucos segundos, sincronizam automaticamente com a nuvem via HTTP."
         )
     },
     {
-        "meta": "SLIDE 11 • CASES REAIS E TRADE-OFFS DO COUCHDB",
-        "title": "Apache CouchDB no Mundo Real e Seus Trade-offs Arquiteturais",
-        "subtitle": "De Blockchain corporativo (Hyperledger Fabric) a sistemas humanitários offline",
+        "meta": "SLIDE 11 • MERCADO E LIMITAÇÕES DO COUCHDB",
+        "title": "Apache CouchDB no Mundo Real e Seus Trade-offs",
+        "subtitle": "De contratos inteligentes (Hyperledger Fabric) aos gargalos de escritas massivas",
         "speaker": "Integrante 4 (Tempo: 2m45s | Acumulado: 23:30)",
-        "col1_title": "Casos Reais de Mercado",
-        "col1_items": [
-            "Hyperledger Fabric (Linux Foundation): State Database oficial para Smart Contracts em JSON auditável.",
-            "npm Registry: Arquitetura histórica de distribuição e espelhamento global de pacotes Node.js.",
-            "eHealth Africa / Médicos Sem Fronteiras: Coleta epidemiológica em tablets offline durante surtos de Ebola.",
-            "IBM Cloudant: Serviço DBaaS global na nuvem da IBM baseado no Apache CouchDB."
-        ],
-        "col2_title": "Trade-offs (Quando NÃO usar CouchDB)",
-        "col2_items": [
-            "Inadequado para contadores ou telemetria que atualizam o mesmo documento centenas de vezes por segundo (infla a árvore _rev e o disco).",
-            "Necessidade constante de monitorar e executar Compaction em disco.",
-            "Falta de JOINs relacionais e transações ACID multi-documento."
-        ],
+        "theme": "couchdb",
+        "card1": {
+            "title": "🏆 Cases Reais no Mercado",
+            "border": BORDER_GREEN,
+            "items": [
+                "Hyperledger Fabric (Linux Foundation): State Database oficial para Smart Contracts em JSON.",
+                "npm Registry: Histórico de distribuição e espelhamento global de pacotes JavaScript.",
+                "eHealth Africa / Médicos Sem Fronteiras: Rastreamento em surtos de Ebola com tablets offline.",
+                "IBM Cloudant: Serviço corporativo totalmente gerenciado baseado no Apache CouchDB."
+            ]
+        },
+        "card2": {
+            "title": "⚠️ Trade-offs (Quando NÃO Usar)",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Contadores e telemetria atualizados centenas de vezes por segundo na mesma chave.",
+                "Crescimento exponencial de disco devido a revisões _rev pendentes de Compaction.",
+                "Inexistência de JOINs no servidor e transações ACID multi-documento.",
+                "Latência de dezenas de milissegundos limitada por I/O append-only e HTTP."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 4 (2 minutos e 45 segundos):\n\n"
-            "Olhando para casos reais no mercado, o exemplo mais clássico do CouchDB foi o registro oficial do npm, que durante anos usou o protocolo de replicação do CouchDB para distribuir metadados de milhões de pacotes Node.js. Outro caso de altíssimo nível técnico é o Hyperledger Fabric, o principal framework de Blockchain corporativo da Linux Foundation, que adota o Apache CouchDB como banco de estado oficial (World State). Na área humanitária, organizações na África usaram CouchDB + PouchDB durante surtos de Ebola para coletar dados em tablets totalmente offline.\n\n"
-            "Porém, todo arquiteto precisa conhecer os trade-offs. Você não deve escolher o CouchDB para um sistema de telemetria de alta frequência que atualiza o mesmo documento mil vezes por segundo, pois cada atualização cria uma nova folha na árvore _rev e infla o arquivo append-only até a compactação rodar. Agora passo a palavra para o Integrante 5."
+            "Casos emblemáticos incluem o Hyperledger Fabric, que usa CouchDB para guardar o estado mundial de contratos inteligentes em JSON auditável, e o npm registry. No entanto, é fundamental conhecer os trade-offs.\n\n"
+            "Não utilize o CouchDB para sistemas de alta frequência que atualizam o mesmo registro mil vezes por segundo, pois a árvore de revisões e o disco inflarão rapidamente. Agora passo a palavra ao Integrante 5 para detalhar o Couchbase."
         )
     },
     {
-        "meta": "SLIDE 12 • POSICIONAMENTO DE MERCADO: COUCHBASE SERVER",
+        "meta": "SLIDE 12 • CASOS DE USO DO COUCHBASE SERVER",
         "title": "Onde o Couchbase Brilha: Escala Extrema, Sub-ms e XDCR",
-        "subtitle": "Unificando Cache Distribuído em Memória + Banco Documental SQL++",
+        "subtitle": "Unificando Cache Distribuído + Banco Documental com replicação entre datacenters",
         "speaker": "Integrante 5 (Tempo: 2m45s | Acumulado: 26:15)",
-        "col1_title": "Eliminando a Arquitetura Dupla (Cache + DB)",
-        "col1_items": [
-            "Substitui a combinação complexa de RDBMS/MongoDB + Redis/Memcached por uma única plataforma.",
-            "Elimina problemas de invalidação de cache e sincronização de duas camadas.",
-            "Ideal para: Gerenciamento de Sessão global, Perfis 360º, Carrinhos de E-commerce, Antifraude em tempo real e Gaming."
-        ],
-        "col2_title": "XDCR (Cross Data Center Replication)",
-        "col2_items": [
-            "Replicação assíncrona Memória-a-Memória via streams binários DCP entre datacenters e nuvens (Multi-Cloud).",
-            "Topologias Active-Active bidirecionais com filtragem avançada.",
-            "Resolução automática de conflitos via Sequence Number (Most Updates Win) ou Timestamp com HLC (Hybrid Logical Clocks)."
-        ],
+        "theme": "couchbase",
+        "card1": {
+            "title": "⚡ Eliminação da Camada Dupla (Cache + DB)",
+            "border": BORDER_BLUE,
+            "items": [
+                "Substitui a arquitetura híbrida RDBMS/MongoDB + Redis/Memcached por um só cluster.",
+                "Elimina problemas de sincronização dupla e invalidação de cache (Cache Invalidation).",
+                "Ideal para sessões de usuários globais, perfis 360°, carrinhos de e-commerce e jogos online.",
+                "Processamento contínuo de centenas de milhares de operações por segundo."
+            ]
+        },
+        "card2": {
+            "title": "🌍 XDCR (Cross Data Center Replication)",
+            "border": BORDER_PURPLE,
+            "items": [
+                "Replicação assíncrona memória-a-memória via TCP direto entre múltiplos datacenters.",
+                "Topologias Active-Active bidirecionais entre nuvens distintas (AWS ⇄ GCP ⇄ Azure).",
+                "Resolução de conflitos automática por Sequence Number ou HLC (Hybrid Logical Clocks).",
+                "Filtragem granular para replicar apenas documentos e coleções específicas."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 5 (2 minutos e 45 segundos):\n\n"
-            "Obrigado. Quando olhamos para o Couchbase, entramos no território das aplicações mission-critical de altíssima vazão e latência sub-milissegundo.\n\n"
-            "Em muitas arquiteturas modernas, as equipes colocam um banco documental ou relacional no fundo e precisam adicionar um cluster de Redis ou Memcached na frente para aguentar o tráfego de leitura. O Couchbase elimina essa complexidade porque ele já é o cache em memória e o banco de dados persistente com suporte a SQL++ na mesma plataforma.\n\n"
-            "Além disso, para escala global entre continentes, o Couchbase possui o XDCR (Cross Data Center Replication). Diferente da replicação via HTTP do CouchDB, o XDCR transmite mutações diretamente da memória RAM de um datacenter para a memória RAM de outro datacenter usando streams binários DCP."
+            "Obrigado. Quando entramos no Couchbase, falamos de missão crítica em larga escala. Em muitas empresas, coloca-se um banco relacional no fundo e um Redis na frente. O Couchbase resolve isso porque ele já é o cache e o banco persistente ao mesmo tempo.\n\n"
+            "Além disso, para atuação global, o XDCR replica mutações diretamente da memória de um datacenter no Brasil para outro nos Estados Unidos usando streams TCP binários e relógios lógicos híbridos."
         )
     },
     {
-        "meta": "SLIDE 13 • CASES REAIS E TRADE-OFFS DO COUCHBASE",
-        "title": "Couchbase no Mundo Real e Seus Trade-offs Arquiteturais",
-        "subtitle": "Operações Tier-1 de milhões de queries/segundo e custos de infraestrutura",
+        "meta": "SLIDE 13 • MERCADO E LIMITAÇÕES DO COUCHBASE",
+        "title": "Couchbase em Escala Global e Seus Trade-offs",
+        "subtitle": "Cases de milhões de operações por segundo e custos operacionais de memória",
         "speaker": "Integrante 5 (Tempo: 2m45s | Acumulado: 29:00)",
-        "col1_title": "Gigantes em Produção com Couchbase",
-        "col1_items": [
-            "LinkedIn: Mais de 10 milhões de queries por segundo com latência < 2ms substituindo camadas de cache + Oracle.",
-            "Amadeus, Sabre & United Airlines: Inventário global de voos, assentos e check-in de passageiros em tempo real.",
-            "PayPal & Revolut: Análise de fraude e sessões financeiras críticas.",
-            "Domino's Pizza & Tesco: Pedidos e carrinhos em picos massivos (Super Bowl / Black Friday)."
-        ],
-        "col2_title": "Trade-offs (Quando NÃO usar Couchbase)",
-        "col2_items": [
-            "Alto requisito de memória RAM e hardware (inviável para microsserviços pequenos em VMs de 512MB/1GB).",
-            "Complexidade operacional: exige planejamento de cotas de serviços MDS, índices GSI e rebalanceamento de vBuckets.",
-            "Custo de licenciamento da versão Enterprise/Capella."
-        ],
+        "theme": "couchbase",
+        "card1": {
+            "title": "🏢 Gigantes em Produção com Couchbase",
+            "border": BORDER_GREEN,
+            "items": [
+                "LinkedIn: Mais de 10 milhões de queries/s com latência < 2ms servindo perfis e conexões.",
+                "Amadeus, Sabre & United Airlines: Disponibilidade de voos e cartões de embarque em tempo real.",
+                "PayPal & Revolut: Detecção de fraudes em pagamentos com análise de perfil sub-milissegundo.",
+                "Domino's Pizza & Tesco: Suporte a picos massivos de pedidos na Black Friday e Super Bowl."
+            ]
+        },
+        "card2": {
+            "title": "⚠️ Trade-offs (Quando NÃO Usar)",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Alto consumo de hardware: Exige servidores com dezenas de GBs de RAM dedicados.",
+                "Inviável para pequenos microsserviços em containers ou VMs modestas (512 MB a 1 GB).",
+                "Complexidade operacional em Day-2 Ops: Dimensionamento de cotas MDS e rebalance de vBuckets.",
+                "Custo de licenciamento da versão Enterprise para recursos como Magma e MOI."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 5 (2 minutos e 45 segundos):\n\n"
-            "No mercado corporativo, os números do Couchbase impressionam. O LinkedIn utiliza o Couchbase como camada crítica de dados atendendo mais de 10 milhões de operações por segundo com latência inferior a 2 milissegundos. Na indústria de aviação, gigantes como Amadeus, Sabre e United Airlines processam disponibilidade de voos e check-ins de milhões de passageiros no Couchbase. No setor financeiro, o PayPal usa Couchbase para prevenção a fraudes em tempo real.\n\n"
-            "E quais são os trade-offs do Couchbase? O primeiro é o custo de hardware e memória. O Couchbase foi desenhado para servidores com dezenas ou centenas de gigabytes de RAM. O segundo é a complexidade operacional: planejar o dimensionamento de serviços Data, Index e Query exige uma equipe madura. Passo agora a palavra ao Integrante 6."
+            "Cases globais demonstram o poder do Couchbase: o LinkedIn atende 10 milhões de operações por segundo, e empresas de aviação como Amadeus processam voos no mundo inteiro com SLAs rigorosos.\n\n"
+            "Porém, o trade-off é o custo de infraestrutura: o Couchbase precisa de muita memória RAM para manter o working set aquecido e demanda equipe experiente para gerenciar rebalances. Passo a palavra ao Integrante 6 para a matriz comparativa."
         )
     },
     {
         "meta": "SLIDE 14 • MATRIZ COMPARATIVA DIRETA (PARTE 1/2)",
         "title": "Quadro Comparativo: Modelo de Dados, CAP e Consultas",
-        "subtitle": "Confronto arquitetural direto entre Apache CouchDB e Couchbase Server",
+        "subtitle": "Confronto direto das garantias distribuídas e linguagens de manipulação",
         "speaker": "Integrante 6 (Tempo: 2m45s | Acumulado: 31:45)",
-        "col1_title": "Apache CouchDB",
-        "col1_items": [
-            "Modelo de Dados: Documentos JSON + _attachments em Databases planos.",
-            "Teorema CAP / PACELC: AP (PC/EC) — prioriza disponibilidade e consistência eventual.",
-            "Concorrência/ACID: MVCC explícito via _rev no documento; sem transações multi-doc.",
-            "Consultas: Views MapReduce (JS/Erlang) e Mango Queries (_find). Sem JOINs."
-        ],
-        "col2_title": "Couchbase Server",
-        "col2_items": [
-            "Modelo de Dados: JSON + KV Binário em Hierarquia Bucket -> Scope -> Collection.",
-            "Teorema CAP / PACELC: CP por padrão (PC/EC) — único vBucket ativo garante consistência imediata.",
-            "Concorrência/ACID: CAS otimista + Locks + Transações ACID Distribuídas Multi-Documento.",
-            "Consultas: N1QL / SQL++ (ANSI SQL com JOIN, UNNEST, GROUP BY) + FTS e Vector Search."
-        ],
+        "theme": "mixed",
+        "card1": {
+            "title": "🟧 Apache CouchDB",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Modelo: Documentos JSON + anexos binários em Databases planos sem schemas.",
+                "Teorema CAP: AP (PC/EC) — Prioriza disponibilidade imediata e consistência eventual.",
+                "Concorrência: MVCC otimista explícito via árvore _rev; sem transações multi-documento.",
+                "Consultas: Views MapReduce pré-computadas e Mango Queries (_find). Não suporta JOINs."
+            ]
+        },
+        "card2": {
+            "title": "🟦 Couchbase Server",
+            "border": BORDER_BLUE,
+            "items": [
+                "Modelo: JSON + Chave-Valor em hierarquia Bucket ➔ Scope ➔ Collection.",
+                "Teorema CAP: CP por padrão (PC/EC) — Único vBucket ativo garante consistência imediata.",
+                "Concorrência: CAS otimista + Locks + Transações ACID Distribuídas Multi-Documento.",
+                "Consultas: SQL++ (N1QL) com ANSI JOINs, UNNEST, CTEs + Full-Text e Vector Search."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 6 (2 minutos e 45 segundos):\n\n"
-            "Obrigado. Para sintetizar nossa análise técnica, construímos uma matriz comparativa direta dividida em seis pilares fundamentais.\n\n"
-            "Primeiro, no Modelo de Dados: ambos guardam JSON, mas o Couchbase organiza os dados em Bucket, Scope e Collection, enquanto o CouchDB trabalha com bancos planos.\n"
-            "Segundo, sob o Teorema CAP: o Apache CouchDB é essencialmente AP. Diante de uma partição de rede, qualquer nó aceita escritas e mantém a disponibilidade, resolvendo divergências depois via árvore de revisões. Já o Couchbase é CP por padrão: como cada chave pertence a apenas um único vBucket ativo no cluster, todas as leituras e escritas daquela chave passam pelo mesmo nó primário em memória.\n"
-            "Terceiro, em Consultas: o CouchDB usa Views MapReduce ou Mango (_find) sem JOIN, enquanto o Couchbase entrega SQL++ completo com ANSI JOINs."
+            "Obrigado. Consolidamos nossa análise em uma matriz comparativa. Primeiro, no modelo de dados: o CouchDB usa bancos planos, enquanto o Couchbase organiza em Bucket, Scope e Collection.\n\n"
+            "No Teorema CAP: o CouchDB é clássico AP, aceitando escritas em qualquer nó desconectado. Já o Couchbase é CP por padrão, pois cada documento é servido por um único vBucket ativo. Nas consultas, o Couchbase se destaca com SQL++ e JOINs nativos."
         )
     },
     {
         "meta": "SLIDE 15 • MATRIZ COMPARATIVA DIRETA (PARTE 2/2)",
         "title": "Quadro Comparativo: Replicação, Latência e Operação",
-        "subtitle": "Critérios objetivos de decisão para Arquitetos de Software e Engenheiros de Dados",
+        "subtitle": "Critérios objetivos de decisão técnica para Arquitetos de Software",
         "speaker": "Integrante 6 (Tempo: 2m45s | Acumulado: 34:30)",
-        "col1_title": "Apache CouchDB",
-        "col1_items": [
-            "Replicação: Couch Replication Protocol sobre HTTP (_changes + _revs_diff). Nativo para P2P e browsers (PouchDB).",
-            "Performance/Latência: Casa dos milissegundos (5ms–30ms+), limitada por I/O de disco append-only e HTTP.",
-            "Complexidade Operacional: Baixa infraestrutura; requer apenas gestão de Compaction e conflitos _rev."
-        ],
-        "col2_title": "Couchbase Server",
-        "col2_items": [
-            "Replicação: DCP (intra-cluster) e XDCR (inter-cluster) via TCP binário direto da RAM. Mobile via Sync Gateway + Couchbase Lite.",
-            "Performance/Latência: Sub-milissegundo (microssegundos) em RAM para KV e poucos ms para N1QL com GSI.",
-            "Complexidade Operacional: Moderada/Alta; exige dimensionamento de RAM, topologia MDS e rebalance de vBuckets."
-        ],
+        "theme": "mixed",
+        "card1": {
+            "title": "🟧 Apache CouchDB",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Replicação: Couch Replication Protocol via HTTP (_changes). Perfeito para P2P e PouchDB.",
+                "Performance: 5 a 30 ms por operação, limitada por I/O append-only e overhead HTTP.",
+                "Operação: Binário leve em Erlang; requer atenção à compactação de disco e conflitos _rev.",
+                "Ideal para: Ambientes remotos, IoT, edge e sincronização móvel offline."
+            ]
+        },
+        "card2": {
+            "title": "🟦 Couchbase Server",
+            "border": BORDER_BLUE,
+            "items": [
+                "Replicação: DCP (intra-cluster) e XDCR (inter-cluster) via stream binário TCP de RAM para RAM.",
+                "Performance: Sub-milissegundo (< 1 ms / microssegundos) em RAM para operações de chave.",
+                "Operação: Plataforma robusta que exige dimensionamento de RAM e nós MDS especializados.",
+                "Ideal para: Aplicações de missão crítica com altíssima vazão e baixa latência contínua."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 6 (2 minutos e 45 segundos):\n\n"
-            "Continuando nossa matriz comparativa nos três últimos pilares:\n"
-            "Em Mecanismos de Replicação, o protocolo HTTP do CouchDB permite que até um navegador web participe da replicação via PouchDB. O Couchbase usa o protocolo binário DCP/XDCR de altíssima velocidade entre servidores e exige o Sync Gateway e o Couchbase Lite para mobile.\n\n"
-            "Em Performance e Latência: o CouchDB opera na casa dos milissegundos, limitado pelo protocolo HTTP e escrita append-only em disco; o Couchbase opera na casa de microssegundos graças ao cache gerenciado em memória.\n"
-            "Na Complexidade Operacional, o CouchDB é leve e simples de subir, enquanto o Couchbase é uma plataforma enterprise que demanda planejamento de capacidade de RAM. Passo agora a palavra ao Integrante 7 para o nosso Workshop Prático."
+            "Nos pilares finais da comparação: a replicação do CouchDB é universal sobre HTTP, integrando navegadores com facilidade. O Couchbase foca em protocolos binários TCP diretos da memória RAM com latência em microssegundos.\n\n"
+            "Em resumo: escolha CouchDB quando a conectividade for o desafio principal; escolha Couchbase quando a escala e a latência extrema forem o requisito. Passo agora ao Integrante 7 para o Workshop Prático."
         )
     },
     {
-        "meta": "SLIDE 16 • MÓDULO 2: WORKSHOP PRÁTICO REPRODUZÍVEL",
+        "meta": "SLIDE 16 • WORKSHOP PRÁTICO: ARQUITETURA DOCKER",
         "title": "Arquitetura do Laboratório Prático (Docker Compose)",
-        "subtitle": "Orquestrando Apache CouchDB 3.3 e Couchbase Server 7.6 no mesmo ambiente",
+        "subtitle": "Subindo Apache CouchDB 3.3 e Couchbase Server 7.6 no mesmo ambiente de teste",
         "speaker": "Integrante 7 (Tempo: 2 min | Acumulado: 36:30)",
-        "col1_title": "Container 1: Apache CouchDB 3.3",
-        "col1_items": [
-            "Imagem: apache/couchdb:3.3 (container: lab_couchdb).",
-            "Porta única exposta: 5984 (API REST + Interface Web Fauxton em /_utils).",
-            "Testes práticos: Criação de banco via PUT, erro HTTP 409 Conflict (_rev), Mango Query (_find) e stream contínuo /_changes."
-        ],
-        "col2_title": "Container 2: Couchbase Server 7.6",
-        "col2_items": [
-            "Imagem: couchbase:community-7.6.0 (container: lab_couchbase).",
-            "Portas expostas: 8091 (Web Console), 8093 (Query N1QL), 11210 (Data KV Binário).",
-            "Testes práticos: Criação de Bucket/Scope/Collection, índices GSI, queries SQL++ com UNNEST e inspeção de latência sub-ms."
-        ],
+        "theme": "mixed",
+        "card1": {
+            "title": "🐳 Container Apache CouchDB 3.3",
+            "border": BORDER_ORANGE,
+            "items": [
+                "Imagem oficial: apache/couchdb:3.3 (porta 5984 exposta).",
+                "Ambiente: admin / admin123 com inicialização single-node via cURL.",
+                "Interface gráfica web Fauxton integrada acessível em /_utils.",
+                "Foco dos testes: API HTTP, conflitos MVCC e monitoramento do stream _changes."
+            ]
+        },
+        "card2": {
+            "title": "🐳 Container Couchbase Server 7.6",
+            "border": BORDER_BLUE,
+            "items": [
+                "Imagem oficial: couchbase:community-7.6.0 (portas 8091, 8093 e 11210).",
+                "Serviços inicializados via CLI: Data, Index e Query.",
+                "Console web na porta 8091 com Query Workbench interativo.",
+                "Foco dos testes: Criação de Scopes/Collections, índices GSI e queries SQL++."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 7 (2 minutos):\n\n"
-            "Obrigado. Agora vamos sair da teoria e provar esses conceitos arquiteturais na prática. Preparamos um laboratório 100% reproduzível via Docker Compose que sobe simultaneamente o Apache CouchDB 3.3 e o Couchbase Server 7.6.\n\n"
-            "Reparem na diferença imediata já na configuração de rede dos containers: para o CouchDB, precisamos expor apenas uma única porta, a 5984, porque absolutamente tudo — desde administração, inserção de dados, queries Mango até a interface web Fauxton — acontece sobre HTTP REST padrão.\n\n"
-            "Já no container do Couchbase, expomos a porta 8091 para o Console de Gerenciamento, a 8093 para o motor de consultas N1QL e a 11210 para o protocolo binário de chave-valor onde os SDKs se conectam diretamente aos vBuckets."
+            "Obrigado. Vamos provar esses conceitos na prática. Preparamos um laboratório 100% reproduzível via Docker Compose orquestrando o Apache CouchDB e o Couchbase Server.\n\n"
+            "Notem a simplicidade de portas: o CouchDB precisa apenas da 5984 para API e interface Fauxton. Já o Couchbase expõe a 8091 para o console web, a 8093 para o motor SQL++ e a 11210 para o acesso binário aos vBuckets."
         )
     },
     {
-        "meta": "SLIDE 17 • LIVE DEMO 1: APACHE COUCHDB",
-        "title": "Prática 1: Apache CouchDB via API REST, MVCC e _changes",
-        "subtitle": "Executando operações nativas via cURL e monitorando eventos em tempo real",
+        "meta": "SLIDE 17 • LIVE DEMO: APACHE COUCHDB",
+        "title": "Prática 1: Apache CouchDB via cURL, MVCC e _changes",
+        "subtitle": "Demonstração ao vivo do bloqueio otimista HTTP 409 Conflict e streaming de mutações",
         "speaker": "Integrante 7 (Tempo: 2m15s | Acumulado: 38:45)",
-        "col1_title": "Passo a Passo REST & Conflito MVCC",
-        "col1_items": [
-            "1. Criar banco: curl -X PUT http://admin:admin123@localhost:5984/universidade_db",
-            "2. Inserir doc: PUT /universidade_db/aluno_01 -> retorna \"rev\": \"1-4c61...\"",
-            "3. Atualizar SEM _rev -> retorna HTTP 409 Conflict (Document update conflict).",
-            "4. Atualizar COM _rev: \"1-4c61...\" -> avança para revisão \"2-...\"."
-        ],
-        "col2_title": "Mango Query (_find) e Stream /_changes",
-        "col2_items": [
-            "5. Criar índice JSON via POST /universidade_db/_index nos campos [\"cra\", \"curso\"].",
-            "6. Consultar via POST /universidade_db/_find com seletor {\"cra\": {\"$gt\": 8.5}}.",
-            "7. Monitorar mutações ao vivo no Terminal 2: GET /universidade_db/_changes?feed=continuous&since=now."
-        ],
+        "theme": "couchdb",
+        "card1": {
+            "title": "💻 Ciclo MVCC & Conflito 409",
+            "border": BORDER_ORANGE,
+            "items": [
+                "PUT /universidade_db/aluno_01 ➔ Criação do registro com revisão 1-4c61...",
+                "PUT /universidade_db/aluno_01 (sem _rev) ➔ Dispara erro HTTP 409 Conflict!",
+                "PUT enviando _rev atualizado ➔ Sucesso e avanço determinístico para revisão 2-7051...",
+                "Validação prática do bloqueio otimista sem locks pessimistas no banco."
+            ]
+        },
+        "card2": {
+            "title": "🥭 Mango Query & Stream _changes",
+            "border": BORDER_GREEN,
+            "items": [
+                "POST /_find com seletor {\"cra\": {\"$gt\": 8.5}} para busca declarativa em JSON.",
+                "GET /_changes?feed=continuous em terminal secundário monitorando mutações ao vivo.",
+                "Inserção de novos documentos salta instantaneamente no stream contínuo.",
+                "Base de funcionamento do protocolo de replicação distribuída do CouchDB."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 7 (2 minutos e 15 segundos):\n\n"
-            "Na primeira parte da nossa demonstração prática com o Apache CouchDB, vamos usar apenas o cURL no terminal para mostrar que o banco é um servidor web nativo.\n\n"
-            "Primeiro criamos o banco universidade_db e inserimos o documento aluno_01. O CouchDB nos devolve rev: 1-.... Em seguida, tentamos atualizar a nota desse aluno sem passar o _rev — e vemos ao vivo o erro 409 Document update conflict, comprovando na prática o bloqueio otimista MVCC que explicamos no Slide 5. Quando passamos o _rev correto, a revisão avança para 2-....\n\n"
-            "Também deixamos um segundo terminal aberto conectado ao endpoint _changes?feed=continuous. No exato instante em que alteramos o documento no primeiro terminal, o evento JSON salta na tela do segundo terminal em tempo real."
+            "Na primeira prática, criamos o documento aluno_01 no CouchDB. Quando tentamos atualizar a nota sem passar o _rev atual, o servidor devolve na hora o erro HTTP 409 Document update conflict, provando o MVCC ao vivo.\n\n"
+            "Ao passar o _rev correto, a atualização é aceita. Em seguida, mostramos o Mango Query com filtro por CRA e o feed contínuo do endpoint _changes exibindo os deltas em tempo real."
         )
     },
     {
-        "meta": "SLIDE 18 • LIVE DEMO 2: COUCHBASE N1QL (SQL++) & SCRIPT PYTHON",
-        "title": "Prática 2: Couchbase SQL++ (N1QL), GSI e Automação CRUD",
-        "subtitle": "Consultas avançadas sobre JSON e integração programática profissional",
+        "meta": "SLIDE 18 • LIVE DEMO: COUCHBASE SQL++ E SCRIPT CRUD",
+        "title": "Prática 2: Couchbase N1QL, GSI e Automação Python",
+        "subtitle": "Execução de consultas relacionais sobre JSON e fluxo CRUD com tratamento de concorrência",
         "speaker": "Integrante 7 (Tempo: 2m15s | Acumulado: 41:00)",
-        "col1_title": "Consultas SQL++ (N1QL) no Couchbase",
-        "col1_items": [
-            "Estrutura: Bucket `academico` -> Scope `graduacao` -> Collection `matriculas`.",
-            "Criação de índice GSI: CREATE INDEX idx_curso_cra ON matriculas(curso, cra DESC).",
-            "Consulta com UNNEST achatando array interno de disciplinas + GROUP BY por curso.",
-            "Verificação no Dashboard: 0% Cache Miss Ratio e tempo de resposta sub-ms."
-        ],
-        "col2_title": "Script Python CRUD (crud_couchdb_demo.py)",
-        "col2_items": [
-            "Script automatizado executando o ciclo completo: Create -> Read -> Simulação e Tratamento de Conflito HTTP 409 -> Update com _rev -> Mango Query -> Delete (Tombstone).",
-            "Demonstra como aplicações reais encapsulam o controle de revisão otimista."
-        ],
+        "theme": "couchbase",
+        "card1": {
+            "title": "⚡ Consultas SQL++ no Query Workbench",
+            "border": BORDER_BLUE,
+            "items": [
+                "Criação de índice GSI secundário: idx_curso_cra nos campos curso e cra DESC.",
+                "Consulta SQL++ com operador UNNEST para achatar array interno de disciplinas.",
+                "Execução em menos de 2 milissegundos com 0% Cache Miss Ratio (100% RAM).",
+                "Inspeção visual do plano de execução no Web Console da porta 8091."
+            ]
+        },
+        "card2": {
+            "title": "🐍 Automação CRUD em Python 3",
+            "border": BORDER_GREEN,
+            "items": [
+                "Script crud_couchdb_demo.py executando o ciclo completo de persistência.",
+                "Tratamento programático do erro HTTP 409 capturando e reenviando a revisão correta.",
+                "Deleção segura através da geração de Tombstone (\"_deleted\": true).",
+                "Conclusão da apresentação abrindo para a dinâmica de avaliação da turma."
+            ]
+        },
         "notes": (
             "INTEGRAÇÃO DE FALA - INTEGRANTE 7 (2 minutos e 15 segundos):\n\n"
-            "Na segunda etapa do nosso laboratório, entramos no Web Console do Couchbase na porta 8091. Criamos o bucket academico, o escopo graduacao e a coleção matriculas.\n\n"
-            "No Query Workbench, executamos comandos SQL++ (N1QL) idênticos ao SQL que já conhecemos do mundo relacional, criando um índice GSI secundário e rodando um SELECT com filtros e UNNEST sobre arrays internos de disciplinas do aluno. Ao olharmos para o painel de estatísticas em tempo real do Couchbase, vemos que 100% das leituras vieram da memória RAM com tempo de resposta na faixa de microssegundos.\n\n"
-            "Por fim, rodamos nosso script Python conectando direto no banco para demonstrar um fluxo CRUD completo com tratamento de concorrência. Com isso, concluímos nossa apresentação e abrimos para perguntas!"
+            "No Couchbase, entramos no Query Workbench, criamos um índice secundário GSI e rodamos um SELECT com UNNEST no array de disciplinas. O resultado volta em 1.4 milissegundos, servido diretamente da memória RAM.\n\n"
+            "Por fim, executamos nosso script Python demonstrando a automação de um fluxo profissional com captura e recuperação de conflitos MVCC. Concluímos assim o conteúdo principal!"
         )
     }
 ]
 
 
-def add_styled_slide(prs, data):
+def add_slide(prs, data):
     blank_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(blank_layout)
 
-    # Background escuro
+    # 1. Background com preenchimento sólido escuro profundo
     bg = slide.background
     fill = bg.fill
     fill.solid()
-    fill.fore_color.rgb = BG_DARK
+    fill.fore_color.rgb = BG_COLOR
 
-    # Barra superior sutil
+    # 2. Barra Superior Estilizada (Header HUD)
     top_bar = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(0.55)
+        MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(0.58)
     )
     top_bar.fill.solid()
-    top_bar.fill.fore_color.rgb = RGBColor(15, 23, 42)
-    top_bar.line.fill.background()
+    top_bar.fill.fore_color.rgb = TOPBAR_BG
+    top_bar.line.color.rgb = BORDER_DEFAULT
+    top_bar.line.width = Pt(1)
 
-    # Texto da Meta (Esquerda da barra)
-    tf_meta = top_bar.text_frame
-    tf_meta.word_wrap = True
-    p_meta = tf_meta.paragraphs[0]
-    p_meta.text = f"  {data['meta']}   |   🎙 {data['speaker']}"
-    p_meta.font.size = Pt(13)
-    p_meta.font.bold = True
-    p_meta.font.color.rgb = ACCENT_BLUE
+    tf_top = top_bar.text_frame
+    tf_top.word_wrap = True
+    p_top = tf_top.paragraphs[0]
+    p_top.text = f"  {data['meta']}   |   🎙 {data['speaker']}"
+    p_top.font.size = Pt(11.5)
+    p_top.font.bold = True
+    p_top.font.color.rgb = BORDER_BLUE
 
-    # Título do Slide (Calibrado para TV de 50 polegadas)
-    title_box = slide.shapes.add_textbox(Inches(0.35), Inches(0.65), Inches(12.6), Inches(0.85))
+    # 3. Faixa de Destaque Decorativa no Topo
+    accent_strip = slide.shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, Inches(0), Inches(0.55), Inches(13.333), Inches(0.04)
+    )
+    accent_strip.fill.solid()
+    if data["theme"] == "couchdb":
+        accent_strip.fill.fore_color.rgb = BORDER_ORANGE
+    elif data["theme"] == "couchbase":
+        accent_strip.fill.fore_color.rgb = BORDER_BLUE
+    else:
+        accent_strip.fill.fore_color.rgb = BORDER_GREEN
+    accent_strip.line.fill.background()
+
+    # 4. Título Principal
+    title_box = slide.shapes.add_textbox(Inches(0.4), Inches(0.72), Inches(12.5), Inches(0.75))
     tf_title = title_box.text_frame
     tf_title.word_wrap = True
+    tf_title.margin_left = Inches(0)
     p_title = tf_title.paragraphs[0]
     p_title.text = data["title"]
-    p_title.font.size = Pt(31)
+    p_title.font.size = Pt(29)
     p_title.font.bold = True
     p_title.font.color.rgb = TEXT_WHITE
 
-    # Subtítulo
-    sub_box = slide.shapes.add_textbox(Inches(0.35), Inches(1.38), Inches(12.6), Inches(0.5))
+    # 5. Subtítulo Explicativo
+    sub_box = slide.shapes.add_textbox(Inches(0.4), Inches(1.42), Inches(12.5), Inches(0.45))
     tf_sub = sub_box.text_frame
     tf_sub.word_wrap = True
+    tf_sub.margin_left = Inches(0)
     p_sub = tf_sub.paragraphs[0]
     p_sub.text = data["subtitle"]
-    p_sub.font.size = Pt(17.5)
+    p_sub.font.size = Pt(15.5)
     p_sub.font.color.rgb = TEXT_MUTED
 
-    # Card Coluna 1 (Esquerda - Ocupando mais área útil da TV 50")
+    # 6. Card Esquerdo
+    c1_data = data["card1"]
     card1 = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.35), Inches(2.05), Inches(6.18), Inches(5.15)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.4), Inches(2.05), Inches(6.1), Inches(5.15)
     )
     card1.fill.solid()
     card1.fill.fore_color.rgb = CARD_BG
-    card1.line.color.rgb = ACCENT_ORANGE
-    card1.line.width = Pt(2.2)
+    card1.line.color.rgb = c1_data["border"]
+    card1.line.width = Pt(2.5)
 
     tf1 = card1.text_frame
     tf1.word_wrap = True
-    tf1.margin_left = Inches(0.25)
-    tf1.margin_right = Inches(0.25)
-    tf1.margin_top = Inches(0.22)
+    tf1.margin_left = Inches(0.3)
+    tf1.margin_right = Inches(0.3)
+    tf1.margin_top = Inches(0.28)
 
     p1_head = tf1.paragraphs[0]
-    p1_head.text = data["col1_title"]
-    p1_head.font.size = Pt(22)
+    p1_head.text = c1_data["title"]
+    p1_head.font.size = Pt(21)
     p1_head.font.bold = True
-    p1_head.font.color.rgb = ACCENT_ORANGE
+    p1_head.font.color.rgb = c1_data["border"]
     p1_head.space_after = Pt(14)
 
-    for item in data["col1_items"]:
+    for item in c1_data["items"]:
         p = tf1.add_paragraph()
         p.text = f"▸  {item}"
-        p.font.size = Pt(17.5)
+        p.font.size = Pt(15.5)
         p.font.color.rgb = TEXT_WHITE
         p.space_after = Pt(11)
 
-    # Card Coluna 2 (Direita)
+    # 7. Card Direito
+    c2_data = data["card2"]
     card2 = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.80), Inches(2.05), Inches(6.18), Inches(5.15)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.83), Inches(2.05), Inches(6.1), Inches(5.15)
     )
     card2.fill.solid()
     card2.fill.fore_color.rgb = CARD_BG
-    card2.line.color.rgb = ACCENT_BLUE
-    card2.line.width = Pt(2.2)
+    card2.line.color.rgb = c2_data["border"]
+    card2.line.width = Pt(2.5)
 
     tf2 = card2.text_frame
     tf2.word_wrap = True
-    tf2.margin_left = Inches(0.25)
-    tf2.margin_right = Inches(0.25)
-    tf2.margin_top = Inches(0.22)
+    tf2.margin_left = Inches(0.3)
+    tf2.margin_right = Inches(0.3)
+    tf2.margin_top = Inches(0.28)
 
     p2_head = tf2.paragraphs[0]
-    p2_head.text = data["col2_title"]
-    p2_head.font.size = Pt(22)
+    p2_head.text = c2_data["title"]
+    p2_head.font.size = Pt(21)
     p2_head.font.bold = True
-    p2_head.font.color.rgb = ACCENT_BLUE
+    p2_head.font.color.rgb = c2_data["border"]
     p2_head.space_after = Pt(14)
 
-    for item in data["col2_items"]:
+    for item in c2_data["items"]:
         p = tf2.add_paragraph()
         p.text = f"▸  {item}"
-        p.font.size = Pt(17.5)
+        p.font.size = Pt(15.5)
         p.font.color.rgb = TEXT_WHITE
         p.space_after = Pt(11)
 
-    # Inserir Roteiro de Fala nas Notas do Apresentador do PowerPoint
+    # 8. Roteiro de Fala nas Notas do Apresentador
     notes_slide = slide.notes_slide
     notes_tf = notes_slide.notes_text_frame
     notes_tf.text = data["notes"]
@@ -578,11 +734,11 @@ def main():
     prs.slide_height = Inches(7.5)
 
     for slide_data in SLIDES_DATA:
-        add_styled_slide(prs, slide_data)
+        add_slide(prs, slide_data)
 
     output_path = r"d:\Área de Trabalho\BDChrouch\Apresentacao_CouchDB_vs_Couchbase.pptx"
     prs.save(output_path)
-    print(f"Apresentacao PowerPoint gerada com sucesso em: {output_path}")
+    print(f"PPTX gerado com sucesso em: {output_path}")
 
 
 if __name__ == "__main__":

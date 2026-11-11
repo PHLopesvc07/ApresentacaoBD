@@ -485,47 +485,47 @@ def add_styled_slide(prs, data):
     tf_meta.word_wrap = True
     p_meta = tf_meta.paragraphs[0]
     p_meta.text = f"  {data['meta']}   |   🎙 {data['speaker']}"
-    p_meta.font.size = Pt(11)
+    p_meta.font.size = Pt(13)
     p_meta.font.bold = True
     p_meta.font.color.rgb = ACCENT_BLUE
 
-    # Título do Slide
-    title_box = slide.shapes.add_textbox(Inches(0.6), Inches(0.75), Inches(12.1), Inches(0.85))
+    # Título do Slide (Calibrado para TV de 50 polegadas)
+    title_box = slide.shapes.add_textbox(Inches(0.35), Inches(0.65), Inches(12.6), Inches(0.85))
     tf_title = title_box.text_frame
     tf_title.word_wrap = True
     p_title = tf_title.paragraphs[0]
     p_title.text = data["title"]
-    p_title.font.size = Pt(28)
+    p_title.font.size = Pt(31)
     p_title.font.bold = True
     p_title.font.color.rgb = TEXT_WHITE
 
     # Subtítulo
-    sub_box = slide.shapes.add_textbox(Inches(0.6), Inches(1.45), Inches(12.1), Inches(0.5))
+    sub_box = slide.shapes.add_textbox(Inches(0.35), Inches(1.38), Inches(12.6), Inches(0.5))
     tf_sub = sub_box.text_frame
     tf_sub.word_wrap = True
     p_sub = tf_sub.paragraphs[0]
     p_sub.text = data["subtitle"]
-    p_sub.font.size = Pt(15)
+    p_sub.font.size = Pt(17.5)
     p_sub.font.color.rgb = TEXT_MUTED
 
-    # Card Coluna 1 (Esquerda)
+    # Card Coluna 1 (Esquerda - Ocupando mais área útil da TV 50")
     card1 = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(2.15), Inches(5.85), Inches(4.75)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.35), Inches(2.05), Inches(6.18), Inches(5.15)
     )
     card1.fill.solid()
     card1.fill.fore_color.rgb = CARD_BG
     card1.line.color.rgb = ACCENT_ORANGE
-    card1.line.width = Pt(1.5)
+    card1.line.width = Pt(2.2)
 
     tf1 = card1.text_frame
     tf1.word_wrap = True
     tf1.margin_left = Inches(0.25)
     tf1.margin_right = Inches(0.25)
-    tf1.margin_top = Inches(0.25)
+    tf1.margin_top = Inches(0.22)
 
     p1_head = tf1.paragraphs[0]
     p1_head.text = data["col1_title"]
-    p1_head.font.size = Pt(19)
+    p1_head.font.size = Pt(22)
     p1_head.font.bold = True
     p1_head.font.color.rgb = ACCENT_ORANGE
     p1_head.space_after = Pt(14)
@@ -533,28 +533,28 @@ def add_styled_slide(prs, data):
     for item in data["col1_items"]:
         p = tf1.add_paragraph()
         p.text = f"▸  {item}"
-        p.font.size = Pt(14.5)
+        p.font.size = Pt(17.5)
         p.font.color.rgb = TEXT_WHITE
-        p.space_after = Pt(10)
+        p.space_after = Pt(11)
 
     # Card Coluna 2 (Direita)
     card2 = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.85), Inches(2.15), Inches(5.85), Inches(4.75)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.80), Inches(2.05), Inches(6.18), Inches(5.15)
     )
     card2.fill.solid()
     card2.fill.fore_color.rgb = CARD_BG
     card2.line.color.rgb = ACCENT_BLUE
-    card2.line.width = Pt(1.5)
+    card2.line.width = Pt(2.2)
 
     tf2 = card2.text_frame
     tf2.word_wrap = True
     tf2.margin_left = Inches(0.25)
     tf2.margin_right = Inches(0.25)
-    tf2.margin_top = Inches(0.25)
+    tf2.margin_top = Inches(0.22)
 
     p2_head = tf2.paragraphs[0]
     p2_head.text = data["col2_title"]
-    p2_head.font.size = Pt(19)
+    p2_head.font.size = Pt(22)
     p2_head.font.bold = True
     p2_head.font.color.rgb = ACCENT_BLUE
     p2_head.space_after = Pt(14)
@@ -562,9 +562,9 @@ def add_styled_slide(prs, data):
     for item in data["col2_items"]:
         p = tf2.add_paragraph()
         p.text = f"▸  {item}"
-        p.font.size = Pt(14.5)
+        p.font.size = Pt(17.5)
         p.font.color.rgb = TEXT_WHITE
-        p.space_after = Pt(10)
+        p.space_after = Pt(11)
 
     # Inserir Roteiro de Fala nas Notas do Apresentador do PowerPoint
     notes_slide = slide.notes_slide

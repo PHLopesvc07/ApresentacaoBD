@@ -3,31 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seminário NoSQL: Apache CouchDB vs. Couchbase</title>
+  <title>Seminário NoSQL: Apache CouchDB vs. Couchbase Server</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --tv-scale: 1.12;
-      --bg-dark: #050811;
-      --bg-card: #101729;
-      --bg-card-alt: #17213a;
+      --bg-deep: #04070f;
+      --bg-card: rgba(15, 23, 42, 0.78);
+      --bg-card-solid: #0f172a;
+      --bg-card-alt: rgba(30, 41, 59, 0.72);
       --text-main: #ffffff;
       --text-muted: #cbd5e1;
-      --couchdb-color: #f97316;
-      --couchdb-soft: rgba(249, 115, 22, 0.2);
-      --couchbase-color: #38bdf8;
-      --accent-blue: #38bdf8;
-      --accent-cyan: #22d3ee;
+      --couchdb-orange: #ff6b2b;
+      --couchdb-glow: rgba(255, 107, 43, 0.35);
+      --couchbase-blue: #00d2ff;
+      --couchbase-glow: rgba(0, 210, 255, 0.35);
+      --accent-emerald: #10b981;
       --accent-amber: #fbbf24;
-      --accent-emerald: #34d399;
       --accent-purple: #c084fc;
-      --border-color: rgba(148, 163, 184, 0.28);
+      --accent-rose: #f43f5e;
+      --border-glass: rgba(148, 163, 184, 0.24);
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
     }
 
     html {
-      /* Escala fluida calibrada para TV de 50" vista a 5-10 metros de distância */
-      font-size: calc(clamp(17px, 1.25vw, 26px) * var(--tv-scale));
+      /* Escala fluida calibrada para TV de 50" em sala cheia */
+      font-size: calc(clamp(16.5px, 1.22vw, 25px) * var(--tv-scale));
     }
 
     * {
@@ -37,7 +41,7 @@
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: var(--bg-deep);
       color: var(--text-main);
       font-family: var(--font-sans);
       overflow: hidden;
@@ -46,18 +50,105 @@
       display: flex;
       flex-direction: column;
       user-select: none;
+      position: relative;
     }
 
-    /* Top Bar Compacta para Maximizar Área Útil da TV 50" */
+    /* ==========================================================================
+       DYNAMIC AMBIENT BACKGROUND (AURORA + CYBER GRID + LASER SPOTLIGHT)
+       ========================================================================== */
+    .ambient-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.45) 0%, transparent 70%),
+        linear-gradient(to bottom, #03060d 0%, #070c18 100%);
+    }
+
+    .cyber-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.055) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.055) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 30%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 30%, transparent 85%);
+    }
+
+    .aurora-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.42;
+      transition: all 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .orb-1 {
+      width: 48vw;
+      height: 48vw;
+      top: -16vw;
+      left: -10vw;
+      background: radial-gradient(circle, var(--couchdb-orange), transparent 70%);
+      animation: floatOrb1 14s ease-in-out infinite alternate;
+    }
+
+    .orb-2 {
+      width: 45vw;
+      height: 45vw;
+      bottom: -18vw;
+      right: -8vw;
+      background: radial-gradient(circle, var(--couchbase-blue), transparent 70%);
+      animation: floatOrb2 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatOrb1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(6vw, 4vw) scale(1.12); }
+    }
+
+    @keyframes floatOrb2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-6vw, -5vw) scale(1.15); }
+    }
+
+    /* Laser Pointer Spotlight Mode */
+    .laser-dot {
+      position: fixed;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 15%, #ff2a2a 55%, rgba(255, 0, 0, 0) 100%);
+      box-shadow: 0 0 24px 8px rgba(255, 30, 30, 0.85);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    body.laser-active {
+      cursor: none;
+    }
+
+    body.laser-active .laser-dot {
+      display: block;
+    }
+
+    /* ==========================================================================
+       TOP NAVIGATION HUD (GLASSMORPHISM)
+       ========================================================================== */
     .topbar {
-      height: 48px;
-      background: rgba(10, 15, 29, 0.96);
-      border-bottom: 1px solid var(--border-color);
+      height: 52px;
+      background: rgba(7, 11, 22, 0.85);
+      border-bottom: 1px solid var(--border-glass);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
       z-index: 50;
+      backdrop-filter: blur(16px);
     }
 
     .brand {
@@ -65,91 +156,109 @@
       align-items: center;
       gap: 12px;
       font-weight: 800;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       letter-spacing: 0.3px;
     }
 
     .brand-badge {
-      background: linear-gradient(135deg, #f97316, #38bdf8);
-      color: #050811;
+      background: linear-gradient(135deg, var(--couchdb-orange), var(--couchbase-blue));
+      color: #030712;
       font-weight: 900;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
+      padding: 4px 11px;
+      border-radius: 7px;
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 1px;
+      box-shadow: 0 0 16px rgba(0, 210, 255, 0.35);
     }
 
     .speaker-pill {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: var(--bg-card-alt);
-      border: 1px solid var(--border-color);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       padding: 5px 16px;
       border-radius: 999px;
-      font-size: 0.86rem;
+      font-size: 0.82rem;
       font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
     }
 
-    .speaker-dot {
-      width: 10px;
-      height: 10px;
+    .speaker-avatar {
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
+      background: linear-gradient(135deg, #10b981, #0ea5e9);
+      color: #04070f;
+      font-weight: 900;
+      font-size: 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
     }
 
     .controls-top {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .btn-ui {
-      background: var(--bg-card);
+      background: rgba(30, 41, 59, 0.75);
       color: var(--text-main);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-glass);
       padding: 5px 11px;
-      border-radius: 6px;
-      font-size: 0.78rem;
+      border-radius: 8px;
+      font-size: 0.74rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 5px;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn-ui:hover {
-      background: var(--bg-card-alt);
-      border-color: var(--accent-blue);
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--couchbase-blue);
+      transform: translateY(-1px);
     }
 
     .btn-ui.active {
-      background: rgba(56, 189, 248, 0.22);
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
+      background: rgba(0, 210, 255, 0.18);
+      border-color: var(--couchbase-blue);
+      color: #7dd3fc;
+      box-shadow: 0 0 14px rgba(0, 210, 255, 0.25);
     }
 
     .timer-box {
       font-family: var(--font-mono);
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       font-weight: 700;
-      background: #090d16;
+      background: rgba(4, 7, 15, 0.9);
       padding: 5px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      border: 1px solid rgba(251, 191, 36, 0.45);
       color: var(--accent-amber);
       cursor: pointer;
+      transition: all 0.2s;
     }
 
-    /* Main Workspace - Ocupa 96% da Largura da TV 50" */
+    .timer-box:hover {
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
+    }
+
+    /* ==========================================================================
+       MAIN STAGE & SLIDE TRANSITIONS
+       ========================================================================== */
     .main-stage {
       flex: 1;
       display: flex;
       position: relative;
       overflow: hidden;
+      z-index: 10;
     }
 
     .slide-viewport {
@@ -158,7 +267,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px 28px;
+      padding: 12px 28px;
       overflow-y: auto;
       position: relative;
     }
@@ -170,51 +279,106 @@
       min-height: 90%;
       flex-direction: column;
       justify-content: center;
-      animation: fadeIn 0.22s ease-out;
     }
 
     .slide.active {
       display: flex;
+      animation: slideEnter 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+    @keyframes slideEnter {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .slide.active .card,
+    .slide.active .diagram-box,
+    .slide.active .comp-table,
+    .slide.active .terminal-window {
+      animation: cardPop 0.48s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+
+    .slide.active .card:nth-child(1) { animation-delay: 0.05s; }
+    .slide.active .card:nth-child(2) { animation-delay: 0.11s; }
+    .slide.active .card:nth-child(3) { animation-delay: 0.17s; }
+    .slide.active .card:nth-child(4) { animation-delay: 0.22s; }
+    .slide.active .card:nth-child(5) { animation-delay: 0.27s; }
+    .slide.active .card:nth-child(6) { animation-delay: 0.32s; }
+
+    @keyframes cardPop {
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Tipografia de Alto Impacto para Leitura a Longa Distância (TV 50") */
-    .slide-meta {
+    /* ==========================================================================
+       TYPOGRAPHY & HERO BADGES FOR 50" TV
+       ========================================================================== */
+    .slide-header-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .slide-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--accent-cyan);
+      letter-spacing: 1.6px;
+      color: var(--couchbase-blue);
       font-weight: 800;
+      background: rgba(0, 210, 255, 0.1);
+      border: 1px solid rgba(0, 210, 255, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      width: fit-content;
+      margin-bottom: 8px;
     }
 
     .slide-title {
-      font-size: 2.3rem;
+      font-size: 2.22rem;
       font-weight: 900;
       line-height: 1.12;
       margin-bottom: 6px;
       color: #ffffff;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+      letter-spacing: -0.5px;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
+    }
+
+    .gradient-text-orange {
+      background: linear-gradient(90deg, #ff8a4c, #ff4d4d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-text-blue {
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .slide-subtitle {
-      font-size: 1.18rem;
+      font-size: 1.12rem;
       color: #cbd5e1;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       font-weight: 500;
     }
 
+    /* ==========================================================================
+       GLASSMORPHIC CARDS & GRIDS
+       ========================================================================== */
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 22px;
+      gap: 20px;
       margin-top: 4px;
     }
 
@@ -227,32 +391,45 @@
 
     .card {
       background: var(--bg-card);
-      border: 2px solid var(--border-color);
+      backdrop-filter: blur(16px);
+      border: 1.5px solid var(--border-glass);
       border-radius: 16px;
-      padding: 20px 24px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      padding: 18px 22px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.35);
     }
 
     .card.couchdb-border {
-      border-top: 6px solid #f97316;
+      border-top: 5px solid var(--couchdb-orange);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 -4px 24px rgba(255, 107, 43, 0.12);
     }
 
     .card.couchbase-border {
-      border-top: 6px solid var(--accent-blue);
+      border-top: 5px solid var(--couchbase-blue);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 -4px 24px rgba(0, 210, 255, 0.12);
     }
 
     .card.emerald-border {
-      border-top: 6px solid var(--accent-emerald);
+      border-top: 5px solid var(--accent-emerald);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 -4px 24px rgba(16, 185, 129, 0.12);
     }
 
     .card.purple-border {
-      border-top: 6px solid var(--accent-purple);
+      border-top: 5px solid var(--accent-purple);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 -4px 24px rgba(192, 132, 252, 0.12);
     }
 
     .card h3 {
-      font-size: 1.38rem;
+      font-size: 1.32rem;
       font-weight: 800;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -263,15 +440,15 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     ul.tech-list li {
       position: relative;
-      padding-left: 24px;
-      font-size: 1.16rem;
+      padding-left: 22px;
+      font-size: 1.1rem;
       font-weight: 500;
-      line-height: 1.42;
+      line-height: 1.4;
       color: #f8fafc;
     }
 
@@ -279,8 +456,16 @@
       content: "▸";
       position: absolute;
       left: 0;
-      color: var(--accent-cyan);
+      color: var(--couchbase-blue);
       font-weight: 900;
+    }
+
+    .card.couchdb-border ul.tech-list li::before {
+      color: var(--couchdb-orange);
+    }
+
+    .card.emerald-border ul.tech-list li::before {
+      color: var(--accent-emerald);
     }
 
     ul.tech-list li strong {
@@ -290,103 +475,303 @@
 
     code.inline {
       font-family: var(--font-mono);
-      background: rgba(56, 189, 248, 0.22);
-      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(0, 210, 255, 0.16);
+      border: 1px solid rgba(0, 210, 255, 0.4);
       color: #7dd3fc;
-      padding: 1px 8px;
+      padding: 1px 7px;
       border-radius: 6px;
-      font-size: 0.94em;
+      font-size: 0.92em;
       font-weight: 700;
     }
 
-    pre.code-block {
-      background: #03060c;
-      border: 2px solid rgba(56, 189, 248, 0.4);
-      border-radius: 12px;
-      padding: 16px 20px;
-      font-family: var(--font-mono);
-      font-size: 1.02rem;
-      font-weight: 600;
-      line-height: 1.44;
-      color: #f8fafc;
-      overflow-x: auto;
-      user-select: text;
-    }
-
+    /* ==========================================================================
+       INTERACTIVE SIMULATORS & ANIMATED DIAGRAMS
+       ========================================================================== */
     .diagram-box {
-      background: #070b14;
-      border: 2px dashed rgba(148, 163, 184, 0.45);
-      border-radius: 14px;
+      background: rgba(7, 11, 22, 0.85);
+      border: 1.5px solid rgba(148, 163, 184, 0.3);
+      border-radius: 16px;
       padding: 16px 20px;
       margin-top: 14px;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.6);
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+    }
+
+    .sim-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-amber);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sim-btn {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+    }
+
+    .sim-btn:hover {
+      transform: scale(1.04);
+      filter: brightness(1.12);
+    }
+
+    .sim-btn.orange {
+      background: linear-gradient(135deg, #ea580c, #f97316);
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+    }
+
+    .sim-btn.emerald {
+      background: linear-gradient(135deg, #059669, #10b981);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
     }
 
     .flow-row {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .flow-node {
-      background: var(--bg-card-alt);
-      border: 2px solid var(--border-color);
-      padding: 12px 18px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 2px solid var(--border-glass);
+      padding: 10px 16px;
       border-radius: 10px;
-      font-size: 1.08rem;
+      font-size: 1rem;
       font-weight: 700;
       text-align: center;
       color: #ffffff;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .flow-node.stale-block {
+      opacity: 0.45;
+      border-style: dashed;
+      background: rgba(15, 23, 42, 0.5);
+      text-decoration: line-through;
     }
 
     .flow-node.highlight-orange {
-      border-color: #f97316;
-      background: rgba(249, 115, 22, 0.22);
+      border-color: var(--couchdb-orange);
+      background: rgba(255, 107, 43, 0.2);
       color: #ffedd5;
+      box-shadow: 0 0 18px rgba(255, 107, 43, 0.25);
     }
 
     .flow-node.highlight-blue {
-      border-color: var(--accent-blue);
-      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--couchbase-blue);
+      background: rgba(0, 210, 255, 0.2);
       color: #e0f2fe;
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.25);
     }
 
     .flow-node.highlight-green {
       border-color: var(--accent-emerald);
       background: rgba(16, 185, 129, 0.22);
       color: #d1fae5;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .flow-node.pulse-active {
+      animation: nodePulse 1.4s infinite alternate;
+    }
+
+    @keyframes nodePulse {
+      from { box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); transform: scale(1); }
+      to { box-shadow: 0 0 26px rgba(16, 185, 129, 0.8); transform: scale(1.03); }
     }
 
     .flow-arrow {
       color: var(--accent-amber);
       font-weight: 900;
-      font-size: 1.35rem;
+      font-size: 1.25rem;
     }
 
-    /* Comparison Table Otimizada para TV 50" */
+    /* Animated Data Stream Bar */
+    .stream-pipe {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(0, 210, 255, 0.12);
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: #7dd3fc;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stream-pipe::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      animation: streamFlow 1.8s infinite linear;
+    }
+
+    @keyframes streamFlow {
+      0% { left: -50%; }
+      100% { left: 120%; }
+    }
+
+    /* Resource Meter Bars (MDS & Latency Benchmarks) */
+    .meter-group {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+
+    .meter-track {
+      height: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       MACOS / LINUX TERMINAL WINDOW MOCKUPS
+       ========================================================================== */
+    .terminal-window {
+      background: #050811;
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-header {
+      background: #0f172a;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .t-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .t-dot.red { background: #ef4444; }
+    .t-dot.yellow { background: #f59e0b; }
+    .t-dot.green { background: #10b981; }
+
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    pre.code-block {
+      background: transparent;
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.96rem;
+      font-weight: 600;
+      line-height: 1.42;
+      color: #f8fafc;
+      overflow-x: auto;
+      user-select: text;
+    }
+
+    .sim-output-box {
+      background: rgba(16, 185, 129, 0.1);
+      border-top: 1px dashed rgba(16, 185, 129, 0.4);
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #a7f3d0;
+      display: none;
+    }
+
+    .sim-output-box.visible {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    /* ==========================================================================
+       COMPARISON TABLE
+       ========================================================================== */
     table.comp-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
+      margin-top: 6px;
       background: var(--bg-card);
-      border-radius: 14px;
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
       overflow: hidden;
-      border: 2px solid var(--border-color);
+      border: 2px solid var(--border-glass);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
     }
 
     table.comp-table th,
     table.comp-table td {
-      padding: 15px 20px;
+      padding: 14px 18px;
       text-align: left;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 1.12rem;
+      border-bottom: 1px solid var(--border-glass);
+      font-size: 1.08rem;
       font-weight: 500;
-      line-height: 1.4;
+      line-height: 1.38;
       color: #f8fafc;
+    }
+
+    table.comp-table tr:hover td {
+      background: rgba(255, 255, 255, 0.04);
     }
 
     table.comp-table td strong {
@@ -395,20 +780,22 @@
     }
 
     table.comp-table th {
-      background: #090e1a;
-      font-size: 1.24rem;
+      background: rgba(9, 14, 26, 0.95);
+      font-size: 1.2rem;
       color: #ffffff;
       font-weight: 900;
     }
 
-    table.comp-table th:nth-child(2) { color: #fb923c; }
-    table.comp-table th:nth-child(3) { color: var(--accent-blue); }
+    table.comp-table th:nth-child(2) { color: var(--couchdb-orange); }
+    table.comp-table th:nth-child(3) { color: var(--couchbase-blue); }
 
     table.comp-table tr:last-child td {
       border-bottom: none;
     }
 
-    /* Teleprompter / Speaker Notes Drawer (Flutuante para NÃO encolher o Slide na TV!) */
+    /* ==========================================================================
+       FLOATING TELEPROMPTER & SLIDE OVERVIEW MODAL (TECLA G)
+       ========================================================================== */
     .notes-panel {
       position: absolute;
       right: 0;
@@ -416,16 +803,16 @@
       bottom: 0;
       width: 440px;
       max-width: 90vw;
-      background: rgba(10, 15, 28, 0.97);
-      border-left: 2px solid var(--accent-blue);
+      background: rgba(8, 12, 24, 0.96);
+      border-left: 2px solid var(--couchbase-blue);
       padding: 22px;
       display: flex;
       flex-direction: column;
       gap: 14px;
       overflow-y: auto;
       z-index: 45;
-      box-shadow: -12px 0 36px rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(12px);
+      box-shadow: -14px 0 40px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(16px);
     }
 
     .notes-panel.hidden {
@@ -436,7 +823,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-glass);
       padding-bottom: 12px;
     }
 
@@ -457,7 +844,7 @@
     }
 
     .notes-script {
-      font-size: 1.05rem;
+      font-size: 1.04rem;
       line-height: 1.62;
       color: #f8fafc;
       background: rgba(255, 255, 255, 0.04);
@@ -467,9 +854,52 @@
       user-select: text;
     }
 
-    /* Quiz Options */
+    /* Slide Grid Overview Modal (Tecla G) */
+    .overview-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 15, 0.94);
+      backdrop-filter: blur(18px);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      padding: 28px 40px;
+      overflow-y: auto;
+    }
+
+    .overview-modal.open {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .overview-item {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .overview-item:hover,
+    .overview-item.current {
+      border-color: var(--couchbase-blue);
+      background: rgba(0, 210, 255, 0.14);
+      transform: translateY(-3px);
+    }
+
+    /* ==========================================================================
+       QUIZ INTERATIVO
+       ========================================================================== */
     .quiz-question {
-      font-size: 1.06rem;
+      font-size: 1.04rem;
       color: #e2e8f0;
       margin-bottom: 10px;
       line-height: 1.38;
@@ -479,17 +909,17 @@
     .quiz-options {
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin-top: 10px;
+      gap: 8px;
+      margin-top: 8px;
     }
 
     .quiz-option {
-      background: var(--bg-card-alt);
-      border: 2px solid var(--border-color);
-      padding: 11px 16px;
+      background: rgba(30, 41, 59, 0.78);
+      border: 1.5px solid var(--border-glass);
+      padding: 10px 14px;
       border-radius: 10px;
       cursor: pointer;
-      font-size: 1.02rem;
+      font-size: 0.98rem;
       font-weight: 600;
       line-height: 1.35;
       transition: all 0.2s;
@@ -499,32 +929,34 @@
     }
 
     .quiz-option:hover {
-      border-color: var(--accent-blue);
+      border-color: var(--couchbase-blue);
       background: #1e293b;
+      transform: translateX(4px);
     }
 
     .quiz-option.correct {
       background: rgba(16, 185, 129, 0.28);
       border-color: var(--accent-emerald);
       color: #ecfdf5;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
     }
 
     .quiz-option.wrong {
-      background: rgba(239, 68, 68, 0.25);
-      border-color: #ef4444;
-      color: #fecaca;
+      background: rgba(244, 63, 94, 0.25);
+      border-color: var(--accent-rose);
+      color: #fecdd3;
     }
 
     .quiz-explanation {
       display: none;
       margin-top: 10px;
-      padding: 12px 16px;
+      padding: 11px 14px;
       border-radius: 10px;
       background: rgba(16, 185, 129, 0.18);
-      border: 2px solid rgba(16, 185, 129, 0.45);
-      font-size: 0.98rem;
+      border: 1.5px solid rgba(16, 185, 129, 0.5);
+      font-size: 0.95rem;
       font-weight: 600;
-      line-height: 1.42;
+      line-height: 1.4;
       color: #d1fae5;
     }
 
@@ -532,17 +964,20 @@
       display: block;
     }
 
-    /* Bottom Footer / Progress Compacto */
+    /* ==========================================================================
+       BOTTOM FOOTER & PROGRESS TRACK
+       ========================================================================== */
     .bottombar {
       height: 42px;
-      background: #070b14;
-      border-top: 1px solid var(--border-color);
+      background: rgba(5, 8, 17, 0.92);
+      border-top: 1px solid var(--border-glass);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
       position: relative;
       z-index: 50;
+      backdrop-filter: blur(12px);
     }
 
     .progress-track {
@@ -550,33 +985,33 @@
       top: 0;
       left: 0;
       height: 4px;
-      background: linear-gradient(90deg, #f97316, #38bdf8, #10b981);
-      transition: width 0.25s ease;
+      background: linear-gradient(90deg, var(--couchdb-orange), var(--couchbase-blue), var(--accent-emerald));
+      box-shadow: 0 0 12px var(--couchbase-blue);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .nav-btns {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .slide-counter {
       font-family: var(--font-mono);
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--text-muted);
     }
 
-    /* Print Mode for PDF Export */
     @media print {
       body {
         overflow: visible;
         height: auto;
-        background: #0b0f19 !important;
+        background: #04070f !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-      .topbar, .bottombar, .notes-panel {
+      .topbar, .bottombar, .notes-panel, .ambient-canvas, .overview-modal {
         display: none !important;
       }
       .slide-viewport {
@@ -587,22 +1022,41 @@
         display: flex !important;
         page-break-after: always;
         min-height: 100vh;
-        padding: 40px;
+        padding: 36px;
       }
     }
   </style>
 </head>
 <body>
 
+  <!-- DYNAMIC AMBIENT BACKGROUND -->
+  <div class="ambient-canvas">
+    <div class="cyber-grid"></div>
+    <div class="aurora-orb orb-1" id="orb1"></div>
+    <div class="aurora-orb orb-2" id="orb2"></div>
+  </div>
+
+  <!-- LASER POINTER DOT -->
+  <div class="laser-dot" id="laserDot"></div>
+
+  <!-- SLIDE OVERVIEW MODAL (TECLA G) -->
+  <div class="overview-modal" id="overviewModal">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="font-size:1.6rem; font-weight:900;">🗺️ Mapa Rápido de Slides e Integrantes (Tecla G)</h2>
+      <button class="btn-ui" onclick="toggleOverview()">✕ Fechar (Esc)</button>
+    </div>
+    <div class="overview-grid" id="overviewGrid"></div>
+  </div>
+
   <!-- TOP NAVIGATION BAR -->
   <header class="topbar">
     <div class="brand">
-      <span class="brand-badge">Seminário NoSQL</span>
-      <span>Apache CouchDB vs. Couchbase Server</span>
+      <span class="brand-badge">Arquitetura NoSQL</span>
+      <span>Apache CouchDB <span style="color:var(--text-muted); font-weight:400;">vs.</span> Couchbase Server</span>
     </div>
 
     <div class="speaker-pill">
-      <span class="speaker-dot"></span>
+      <div class="speaker-avatar" id="speakerAvatar">I1</div>
       <span id="currentSpeakerLabel">Integrante 1 • Tempo estimado: 2 min</span>
     </div>
 
@@ -611,9 +1065,10 @@
       <button class="btn-ui" onclick="adjustZoom(-0.08)" title="Diminuir Fonte (Tecla -)">🔍 A-</button>
       <button class="btn-ui active" id="zoomBadge" onclick="resetZoom()" title="Escala Calibrada para TV 50&quot; (Tecla 0)">📺 TV 50" (112%)</button>
       <button class="btn-ui" onclick="adjustZoom(0.08)" title="Aumentar Fonte (Tecla +)">🔍 A+</button>
-      <button class="btn-ui" id="btnToggleNotes" onclick="toggleNotes()">🎙 Roteiro (R)</button>
-      <button class="btn-ui" onclick="toggleFullScreen()">⛶ Tela Cheia (F)</button>
-      <button class="btn-ui" onclick="window.print()">🖨 PDF</button>
+      <button class="btn-ui" id="btnLaser" onclick="toggleLaser()" title="Apontador Laser Virtual na TV (Tecla L)">🔴 Laser (L)</button>
+      <button class="btn-ui" onclick="toggleOverview()" title="Mapa de Todos os Slides (Tecla G)">🗺️ Mapa (G)</button>
+      <button class="btn-ui" id="btnToggleNotes" onclick="toggleNotes()" title="Abrir/Fechar Teleprompter (Tecla R)">🎙 Roteiro (R)</button>
+      <button class="btn-ui" onclick="toggleFullScreen()" title="Tela Cheia (Tecla F)">⛶ Tela Cheia</button>
     </div>
   </header>
 
@@ -625,18 +1080,23 @@
            SLIDE 1: CAPA E CONTEXTUALIZAÇÃO (INTEGRANTE 1)
            ========================================================= -->
       <section class="slide active"
+        data-theme="mixed"
         data-speaker="Integrante 1"
         data-time="2 min (Acumulado: 02:00)"
         data-script="Bom dia/Boa tarde a todos. Hoje nossa equipe vai apresentar uma análise arquitetural profunda sobre dois bancos de dados NoSQL orientados a documentos que frequentemente causam confusão pelo nome, mas que resolveram problemas completamente distintos na engenharia de software: o Apache CouchDB e o Couchbase.<br><br>Quando olhamos para as limitações dos bancos relacionais tradicionais em sistemas distribuídos de larga escala, esbarramos em dois gargalos clássicos: a impedância objeto-relacional e o custo de manter transações distribuídas com bloqueio pessimista. Tanto o CouchDB quanto o Couchbase adotam o JSON como unidade básica de armazenamento, mas como veremos nos próximos 40 minutos, enquanto um nasceu para dominar a web descentralizada e redes instáveis, o outro foi projetado para entregar latência sub-milissegundo em clusters massivos orientados a memória.">
-        <div class="slide-meta">Módulo 1 • Origem e Fundamentos Arquiteturais</div>
-        <h1 class="slide-title" style="font-size: 3rem;">Apache CouchDB vs. Couchbase</h1>
-        <p class="slide-subtitle" style="font-size: 1.35rem;">Arquiteturas Documentais Distribuídas: Da Sincronização Offline-First à Performance Sub-Milissegundo em Memória</p>
+        <div class="slide-meta">Módulo 1 • Arquitetura de Dados Não-Relacionais (NoSQL)</div>
+        <h1 class="slide-title" style="font-size: 2.75rem;">
+          <span class="gradient-text-orange">Apache CouchDB</span> vs. <span class="gradient-text-blue">Couchbase Server</span>
+        </h1>
+        <p class="slide-subtitle" style="font-size: 1.25rem;">
+          Da Sincronização Offline-First sobre HTTP à Performance Sub-Milissegundo em Memória Gerenciada
+        </p>
 
         <div class="grid-3">
           <div class="card couchdb-border">
             <h3>🌐 A Crise do RDBMS Clássico</h3>
             <ul class="tech-list">
-              <li>Limites da escalabilidade vertical (Scale-Up) na explosão da Web 2.0 e Mobile.</li>
+              <li>Limites físicos da escalabilidade vertical (<strong>Scale-Up</strong>) na Web 2.0 e Mobile.</li>
               <li><strong>Impedância Objeto-Relacional:</strong> Custo de fragmentar agregados em dezenas de tabelas normalizadas.</li>
               <li>Bloqueios pessimistas (2PL) inviáveis em topologias geograficamente distribuídas.</li>
             </ul>
@@ -646,20 +1106,20 @@
             <h3>📄 O Paradigma Documental JSON</h3>
             <ul class="tech-list">
               <li>Documentos auto-contidos em <strong>JSON</strong> (Arrays e Objetos aninhados).</li>
-              <li>Localidade de dados: leitura de uma entidade inteira em uma única operação de I/O.</li>
-              <li>Flexibilidade de schema (Schema-on-read) sem comandos bloqueantes de <code class="inline">ALTER TABLE</code>.</li>
+              <li><strong>Localidade de Dados:</strong> Leitura de um agregado completo em um único I/O.</li>
+              <li>Evolução ágil de schema (<em>Schema-on-read</em>) sem <code class="inline">ALTER TABLE</code> bloqueante.</li>
             </ul>
           </div>
 
           <div class="card emerald-border">
-            <h3>👥 Equipe do Seminário (7 Integrantes)</h3>
+            <h3>👥 Roteiro da Equipe (7 Integrantes)</h3>
             <ul class="tech-list">
               <li><strong>Int. 1:</strong> Genealogia Histórica & Bifurcação</li>
-              <li><strong>Int. 2:</strong> Arquitetura Interna Apache CouchDB</li>
-              <li><strong>Int. 3:</strong> Arquitetura Interna Couchbase Server</li>
-              <li><strong>Int. 4 & 5:</strong> Casos Reais, Mercado & Trade-offs</li>
+              <li><strong>Int. 2:</strong> Motor Interno Apache CouchDB</li>
+              <li><strong>Int. 3:</strong> Motor Interno Couchbase Server</li>
+              <li><strong>Int. 4 & 5:</strong> Casos de Uso, Mercado & Trade-offs</li>
               <li><strong>Int. 6:</strong> Matriz Comparativa (CAP / Latência)</li>
-              <li><strong>Int. 7:</strong> Workshop Prático (Docker + Live Demo)</li>
+              <li><strong>Int. 7:</strong> Workshop ao Vivo (Docker + Código)</li>
             </ul>
           </div>
         </div>
@@ -669,6 +1129,7 @@
            SLIDE 2: A GENEALOGIA HISTÓRICA E A FUSÃO DE 2011 (INTEGRANTE 1)
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Integrante 1"
         data-time="2 min (Acumulado: 04:00)"
         data-script="Para entender por que esses dois bancos têm 'Couch' no nome, precisamos voltar a 2005. Damien Katz, que trabalhou no IBM Lotus Notes, criou o CouchDB inspirado em bancos de documentos replicados. O próprio nome COUCH é um acrônimo para Cluster Of Unreliable Commodity Hardware — ou seja, hardware comum e não confiável.<br><br>Em paralelo, a equipe por trás do famoso sistema de cache distribuído Memcached criou o Membase, que adicionava persistência em disco e replicação ao Memcached. Em 2011, a empresa comercial por trás do CouchDB, chamada CouchOne, fundiu-se com a Membase, formando a Couchbase Inc.<br><br>O ponto crucial para qualquer arquiteto de dados é entender o que aconteceu depois: o produto Couchbase Server não é um CouchDB com outro nome. A engenharia do Couchbase fundiu o motor de chave-valor em memória de altíssima velocidade do Membase com a capacidade de indexar JSON. Enquanto isso, a comunidade aberta manteve o Apache CouchDB evoluindo de forma independente sob a Apache Foundation.">
@@ -677,6 +1138,10 @@
         <p class="slide-subtitle">Por que dois bancos com nomes semelhantes possuem motores internos 100% diferentes?</p>
 
         <div class="diagram-box">
+          <div class="sim-header">
+            <span class="sim-title">⚡ Linha do Tempo Arquitetural (2003 — Presente)</span>
+            <span class="stream-pipe">Bifurcação de Motores Internos</span>
+          </div>
           <div class="flow-row">
             <div class="flow-node highlight-orange">
               <strong>2005: Apache CouchDB</strong><br/>
@@ -686,42 +1151,42 @@
             <span class="flow-arrow">➔</span>
             <div class="flow-node highlight-orange">
               <strong>2009: CouchOne Inc.</strong><br/>
-              Comercialização e suporte ao CouchDB
+              Suporte Comercial ao CouchDB
             </div>
             <span class="flow-arrow">↘</span>
-            <div class="flow-node highlight-green" style="padding: 16px 24px;">
-              <strong>Fevereiro de 2011: FUSÃO</strong><br/>
+            <div class="flow-node highlight-green pulse-active" style="padding: 14px 22px;">
+              <strong>Fev 2011: FUSÃO</strong><br/>
               CouchOne + Membase = <strong>Couchbase Inc.</strong>
             </div>
           </div>
           <div class="flow-row">
             <div class="flow-node highlight-blue">
               <strong>2003: Memcached</strong><br/>
-              Cache distribuído em RAM (Danga)
+              Cache Distribuído em RAM
             </div>
             <span class="flow-arrow">➔</span>
             <div class="flow-node highlight-blue">
               <strong>2010: Membase (NorthScale)</strong><br/>
-              Memcached + Persistência + Replicação
+              Memcached + Persistência + vBuckets
             </div>
             <span class="flow-arrow">↗</span>
           </div>
         </div>
 
-        <div class="grid-2" style="margin-top: 20px;">
+        <div class="grid-2" style="margin-top: 14px;">
           <div class="card couchdb-border">
             <h3>🪶 O Caminho do Apache CouchDB (ASF)</h3>
             <ul class="tech-list">
-              <li>Tornou-se projeto Top-Level da <strong>Apache Software Foundation</strong> em 2008.</li>
-              <li>Manteve seu núcleo em <strong>Erlang/OTP</strong> focado em robustez, web nativa e sincronização Master-Master.</li>
-              <li>Evoluiu com doações do <strong>IBM Cloudant</strong> (Clusterização BigCouch no CouchDB 2.0 e Mango Queries).</li>
+              <li>Projeto Top-Level da <strong>Apache Software Foundation</strong> desde 2008.</li>
+              <li>Manteve seu núcleo em <strong>Erlang/OTP</strong> focado em protocolo HTTP nativo e replicação Master-Master.</li>
+              <li>Incorporou o cluster <em>BigCouch</em> e <em>Mango Queries</em> doados pelo <strong>IBM Cloudant</strong> (CouchDB 2.0/3.0).</li>
             </ul>
           </div>
           <div class="card couchbase-border">
             <h3>⚡ O Caminho do Couchbase Server</h3>
             <ul class="tech-list">
-              <li>Uniu o <strong>motor KV em memória do Membase</strong> (C/C++) com suporte a documentos JSON.</li>
-              <li>Substituiu a arquitetura interna do CouchDB por particionamento via <strong>vBuckets</strong>, protocolo DCP e <strong>N1QL (SQL for JSON)</strong>.</li>
+              <li>Manteve o <strong>motor KV em memória do Membase</strong> (C/C++) e adicionou motor documental JSON.</li>
+              <li>Criou arquitetura <strong>Multi-Service (MDS)</strong>, protocolo binário DCP e linguagem <strong>N1QL (SQL++)</strong>.</li>
             </ul>
           </div>
         </div>
@@ -731,31 +1196,32 @@
            SLIDE 3: BIFURCAÇÃO FILOSÓFICA FUNDAMENTAL (INTEGRANTE 1)
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Integrante 1"
         data-time="2 min (Acumulado: 06:00)"
         data-script="Essa separação gerou duas filosofias de engenharia opostas.<br><br>De um lado, o Apache CouchDB fala HTTP de forma nativa. Você conversa com o banco diretamente usando cURL ou o navegador. Ele não usa bloqueios (locks); em vez disso, obriga a aplicação a lidar com revisões explícitas através de Multi-Version Concurrency Control (MVCC), porque seu objetivo maior é permitir que dois nós desconectados aceitem escritas e sincronizem depois sem corromper dados.<br><br>Do outro lado, o Couchbase opera sobre um protocolo binário enxuto via TCP. Ele coloca uma camada de memória RAM gerenciada na frente do disco. Toda escrita vai para a RAM e retorna sucesso em microssegundos, sendo persistida de forma assíncrona em background. Agora passo a palavra para o Integrante 2, que vai dissecar o motor interno do Apache CouchDB.">
         <div class="slide-meta">Slide 3 • Filosofia de Engenharia</div>
         <h2 class="slide-title">Bifurcação Filosófica: Web Nativa vs. Performance Memory-First</h2>
-        <p class="slide-subtitle">Decisões fundamentais de protocolo, concorrência e hierarquia de memória</p>
+        <p class="slide-subtitle">Decisões opostas em protocolo de rede, controle de concorrência e hierarquia de memória</p>
 
         <div class="grid-2">
           <div class="card couchdb-border">
-            <h3>🟧 Apache CouchDB: Filosofia "Sync & Web-First"</h3>
+            <h3>🟧 Apache CouchDB: "Sync & Web-First"</h3>
             <ul class="tech-list">
-              <li><strong>Protocolo Primário:</strong> HTTP/REST nativo (porta <code class="inline">5984</code>). Qualquer cliente HTTP ou browser conversa diretamente com o banco.</li>
-              <li><strong>Caminho de Escrita:</strong> <em>Disk-First (Append-Only)</em>. Toda mutação vai para estruturas imutáveis em disco.</li>
-              <li><strong>Concorrência Otimista Explícita:</strong> Árvore MVCC no documento via campo <code class="inline">_rev</code>. Pensado para conflitos em desconexão.</li>
-              <li><strong>Prioridade Arquitetural:</strong> Resiliência em redes não confiáveis, sincronização <em>Offline-First</em> e replicação Multi-Primary.</li>
+              <li><strong>Protocolo Primário:</strong> HTTP/REST nativo (porta <code class="inline">5984</code>). Qualquer browser ou <code class="inline">cURL</code> conversa direto com o banco.</li>
+              <li><strong>Caminho de I/O:</strong> <em>Disk-First (Append-Only)</em>. Toda escrita vai direto para estruturas imutáveis em disco.</li>
+              <li><strong>Concorrência Otimista Explícita:</strong> Árvore MVCC no documento via <code class="inline">_rev</code>. Desenhado para desconexões.</li>
+              <li><strong>Foco Principal:</strong> Resiliência em redes instáveis, sincronização <em>Offline-First</em> e topologia AP.</li>
             </ul>
           </div>
 
           <div class="card couchbase-border">
-            <h3>🟦 Couchbase: Filosofia "Memory-First & Scale"</h3>
+            <h3>🟦 Couchbase: "Memory-First & Scale"</h3>
             <ul class="tech-list">
               <li><strong>Protocolo Primário:</strong> Binário proprietário sobre TCP (porta <code class="inline">11210</code>) com SDKs inteligentes cientes da topologia.</li>
-              <li><strong>Caminho de Escrita:</strong> <em>Memory-First</em>. Mutações gravadas imediatamente no cache gerenciado em RAM (sub-milissegundo).</li>
-              <li><strong>Consistência Forte por Padrão:</strong> Um único vBucket ativo por chave + controle CAS (Compare-And-Swap) e transações ACID.</li>
-              <li><strong>Prioridade Arquitetural:</strong> Altíssima vazão (milhões de ops/seg), baixa latência, elasticidade horizontal e consultas <strong>SQL++ (N1QL)</strong>.</li>
+              <li><strong>Caminho de I/O:</strong> <em>Memory-First</em>. Mutações gravadas imediatamente no cache gerenciado em RAM (sub-ms).</li>
+              <li><strong>Consistência Forte por Padrão:</strong> Único vBucket ativo por chave (CP) + CAS otimista e transações ACID.</li>
+              <li><strong>Foco Principal:</strong> Vazão extrema (milhões ops/s), latência em microssegundos e consultas <strong>SQL++ (N1QL)</strong>.</li>
             </ul>
           </div>
         </div>
@@ -765,6 +1231,7 @@
            SLIDE 4: ARQUITETURA COUCHDB — APPEND-ONLY & B+TREE (INTEGRANTE 2)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchdb"
         data-speaker="Integrante 2"
         data-time="2 min (Acumulado: 08:00)"
         data-script="Obrigado. Vamos mergulhar na engenharia interna do Apache CouchDB. Primeiro, ele é escrito em Erlang, a linguagem criada pela Ericsson para comutadores telefônicos, famosa por concorrência massiva e isolamento de falhas.<br><br>O coração do armazenamento do CouchDB é sua estrutura Append-Only B+Tree. Diferente de bancos que sobrescrevem blocos de disco no lugar, o CouchDB jamais altera um byte já gravado. Quando você atualiza um documento ou atualiza os nós da árvore B+ de índices, ele grava os novos blocos de dados e o novo cabeçalho do banco sempre no final do arquivo.<br><br>Qual é a vantagem arquitetural disso? Primeiro, leituras nunca bloqueiam escritas e escritas nunca bloqueiam leituras. Segundo, o banco é virtualmente imune à corrupção por queda brusca de energia: quando o processo sobe novamente, ele apenas varre o final do arquivo até achar o último Tail Header íntegro. O trade-off é o consumo de espaço em disco, que exige um processo de Compactação (Compaction) para reescrever o arquivo mantendo apenas a revisão mais recente.">
@@ -776,33 +1243,41 @@
           <div class="card couchdb-border">
             <h3>⚙️ Núcleo Erlang/OTP & Tail-Append</h3>
             <ul class="tech-list">
-              <li>Construído em <strong>Erlang/OTP</strong>: processos leves (Actor Model), troca de mensagens assíncrona e tolerância a falhas (<em>Let it crash</em>).</li>
-              <li><strong>Zero In-Place Updates:</strong> Blocos de disco jamais são sobrescritos. Atualizações e deleções geram novos blocos no fim do arquivo (<code class="inline">.couch</code>).</li>
-              <li><strong>Tail Header:</strong> O cabeçalho contendo o ponteiro para a raiz da B+Tree é gravado no <strong>final</strong> do arquivo após cada commit (`fsync`).</li>
+              <li>Construído em <strong>Erlang/OTP</strong>: processos leves (Actor Model) e tolerância a falhas (<em>Let it crash</em>).</li>
+              <li><strong>Zero In-Place Updates:</strong> Blocos de disco jamais são sobrescritos. Novas revisões vão sempre para o fim do arquivo (<code class="inline">.couch</code>).</li>
+              <li><strong>Tail Header:</strong> O cabeçalho com ponteiro para a raiz da B+Tree é gravado no <strong>final</strong> do arquivo após cada commit.</li>
             </ul>
           </div>
 
           <div class="card emerald-border">
-            <h3>🛡️ Benefícios e o Papel do Compaction</h3>
+            <h3>🛡️ Garantias e o Papel do Compaction</h3>
             <ul class="tech-list">
-              <li><strong>Leituras Lock-Free:</strong> Leitores percorrem snapshots imutáveis da árvore B+ sem bloquear escritores concorrentes.</li>
-              <li><strong>Crash-Only Design:</strong> Em queda de energia, não há <em>Undo/Redo Recovery Log</em> lento; basta buscar o último Tail Header válido de trás para frente.</li>
-              <li><strong>Compaction (Compactação):</strong> Processo em background que copia apenas as revisões ativas para um novo arquivo <code class="inline">.compact</code> e libera espaço morto.</li>
+              <li><strong>Leituras Lock-Free:</strong> Leitores percorrem snapshots imutáveis da B+Tree sem bloquear escritas.</li>
+              <li><strong>Crash-Only Design:</strong> Em queda de energia, basta ler o arquivo de trás para frente até o último <em>Tail Header</em> válido.</li>
+              <li><strong>Compaction:</strong> Reescreve o arquivo em background removendo blocos órfãos de revisões antigas.</li>
             </ul>
           </div>
         </div>
 
+        <!-- SIMULADOR INTERATIVO APPEND-ONLY + COMPACTION -->
         <div class="diagram-box">
-          <div class="flow-row">
-            <div class="flow-node">[Bloco Antigo: Doc A v1]</div>
+          <div class="sim-header">
+            <span class="sim-title">🧪 Simulador Interativo: Arquivo <code class="inline">universidade_db.couch</code> em Disco</span>
+            <div style="display:flex; gap:10px;">
+              <button class="sim-btn orange" onclick="simAppendCouchDB()">➕ Gravar Atualização (Append)</button>
+              <button class="sim-btn emerald" onclick="simCompactCouchDB()">🧹 Executar Compaction</button>
+            </div>
+          </div>
+          <div class="flow-row" id="couchdbDiskStrip">
+            <div class="flow-node stale-block">[Doc A: rev 1-a8f]</div>
             <span class="flow-arrow">➔</span>
-            <div class="flow-node">[Header Antigo (Órfão)]</div>
+            <div class="flow-node stale-block">[Header v1 (Órfão)]</div>
             <span class="flow-arrow">➔</span>
-            <div class="flow-node highlight-orange">[Novo Bloco: Doc A v2]</div>
+            <div class="flow-node highlight-orange">[Doc A: rev 2-c41]</div>
             <span class="flow-arrow">➔</span>
-            <div class="flow-node highlight-orange">[Novos Nós B+Tree]</div>
+            <div class="flow-node highlight-orange">[Nós B+Tree v2]</div>
             <span class="flow-arrow">➔</span>
-            <div class="flow-node highlight-green"><strong>[Novo Tail Header (EOF)]</strong></div>
+            <div class="flow-node highlight-green pulse-active"><strong>[Tail Header v2 (EOF)]</strong></div>
           </div>
         </div>
       </section>
@@ -811,6 +1286,7 @@
            SLIDE 5: COUCHDB — MVCC, ÁRVORE DE REVISÕES (_REV) E CONFLITOS (INTEGRANTE 2)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchdb"
         data-speaker="Integrante 2"
         data-time="2 min (Acumulado: 10:00)"
         data-script="Como o CouchDB garante consistência ACID no nível do documento sem usar locks pessimistas? Através de MVCC (Multi-Version Concurrency Control) exposto diretamente na API HTTP via o campo _rev.<br><br>Cada documento no CouchDB não é apenas um registro, mas sim uma árvore de revisões parecida com um repositório Git. Sempre que você cria um documento, o CouchDB gera um _rev começando com 1- seguido de um hash determinístico do conteúdo. Para atualizar esse documento via PUT, você é obrigado a informar esse _rev. Se outro cliente atualizou o documento um milissegundo antes de você, o CouchDB rejeita sua escrita imediatamente com um erro HTTP 409 Conflict.<br><br>Já em cenários de replicação entre dois servidores desconectados, ambos podem aceitar atualizações para o mesmo documento. Quando a rede volta e eles sincronizam, o CouchDB guarda ambas as ramificações na árvore do documento e aplica um algoritmo determinístico baseado no hash das revisões para eleger exatamente o mesmo vencedor em todos os nós do cluster, sinalizando o conflito para que a aplicação faça o merge de negócio.">
@@ -822,9 +1298,9 @@
           <div class="card couchdb-border">
             <h3>🔐 Ciclo Optimistic Locking (<code class="inline">_id</code> + <code class="inline">_rev</code>)</h3>
             <ul class="tech-list">
-              <li>Formato do <code class="inline">_rev</code>: <code class="inline">&lt;geração&gt;-&lt;hash_md5_determinístico&gt;</code> (ex: <code class="inline">2-7051cbe5c...</code>).</li>
-              <li><strong>Regra de Atualização/Deleção:</strong> O cliente deve enviar o <code class="inline">_rev</code> atual no <code class="inline">PUT</code> ou <code class="inline">DELETE</code>.</li>
-              <li>Se o <code class="inline">_rev</code> enviado divergir da folha atual no servidor: rejeição imediata com <strong><code class="inline">HTTP 409 Conflict</code></strong>.</li>
+              <li>Formato do <code class="inline">_rev</code>: <code class="inline">&lt;geração&gt;-&lt;hash_md5_determinístico&gt;</code>.</li>
+              <li><strong>Regra de Escrita:</strong> O cliente deve enviar o <code class="inline">_rev</code> atual no <code class="inline">PUT</code> ou <code class="inline">DELETE</code>.</li>
+              <li>Se o <code class="inline">_rev</code> divergir da ponta da árvore no servidor: rejeição imediata com <strong><code class="inline">HTTP 409 Conflict</code></strong>.</li>
               <li>Deleções geram uma revisão <strong>Tombstone</strong> (<code class="inline">"_deleted": true</code>) para propagar a exclusão na replicação.</li>
             </ul>
           </div>
@@ -832,20 +1308,24 @@
           <div class="card purple-border">
             <h3>🌿 Conflitos em Replicação Master-Master</h3>
             <ul class="tech-list">
-              <li>Quando o Nó A e o Nó B editam o mesmo documento offline, a árvore de revisões bifurca (<code class="inline">2-a...</code> e <code class="inline">2-b...</code>).</li>
-              <li><strong>Eleição Determinística de Vencedor:</strong> Todos os nós escolhem a mesma revisão ativa comparando o comprimento da cadeia e a ordem ASCII do hash (sem depender de relógio físico/NTP!).</li>
+              <li>Quando Nó A e Nó B editam o mesmo documento offline, a árvore bifurca (<code class="inline">2-a...</code> e <code class="inline">2-b...</code>).</li>
+              <li><strong>Eleição Determinística:</strong> Todos os nós escolhem a mesma revisão vencedora comparando geração e ordem ASCII do hash (sem depender de relógio NTP!).</li>
               <li>A revisão perdedora fica preservada em <code class="inline">_conflicts</code> até a aplicação resolver e podar o ramo.</li>
             </ul>
           </div>
         </div>
 
         <div class="diagram-box">
+          <div class="sim-header">
+            <span class="sim-title">🌳 Árvore de Revisões do Documento em Conflito de Replicação</span>
+            <span class="stream-pipe">Algoritmo Determinístico sem Relógio Físico</span>
+          </div>
           <div class="flow-row">
-            <div class="flow-node"><strong>Rev Inicial:</strong> <code class="inline">1-967a...</code></div>
-            <span class="flow-arrow">➔</span>
-            <div class="flow-node highlight-green"><strong>Ramo Nó A (Vencedor Determinístico):</strong> <code class="inline">2-f89c...</code></div>
+            <div class="flow-node"><strong>Raiz Comum:</strong> <code class="inline">1-967a00d...</code></div>
+            <span class="flow-arrow">➔ Bifurcação Offline ➔</span>
+            <div class="flow-node highlight-green pulse-active"><strong>Ramo Nó A (Vencedor Global):</strong> <code class="inline">2-f89c...</code></div>
             <span class="flow-arrow">+</span>
-            <div class="flow-node highlight-orange"><strong>Ramo Nó B (Preservado em <code class="inline">_conflicts</code>):</strong> <code class="inline">2-31a0...</code></div>
+            <div class="flow-node highlight-orange"><strong>Ramo Nó B (Salvo em <code class="inline">_conflicts</code>):</strong> <code class="inline">2-31a0...</code></div>
           </div>
         </div>
       </section>
@@ -854,6 +1334,7 @@
            SLIDE 6: COUCHDB — MAPREDUCE, MANGO E _CHANGES FEED (INTEGRANTE 2)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchdb"
         data-speaker="Integrante 2"
         data-time="2 min (Acumulado: 12:00)"
         data-script="Para consultar dados além da chave primária _id, o CouchDB historicamente utiliza Design Documents contendo funções MapReduce escritas em JavaScript. A função map inspeciona cada documento e emite chaves e valores que são gravados em uma B-tree separada. O detalhe técnico brilhante aqui é que as funções de reduce são armazenadas diretamente nos nós intermediários da B-tree, permitindo calcular somas ou contagens em tempo logarítmico. A partir da versão 2.0, o CouchDB também ganhou o Mango Query (_find), permitindo buscas declarativas em JSON muito mais simples.<br><br>Por fim, temos a joia da coroa do CouchDB: o endpoint _changes. Como o armazenamento é append-only, o banco mantém um número de sequência incremental para cada alteração. O endpoint _changes expõe esse fluxo em tempo real. É exatamente sobre o _changes que funciona o Protocolo de Replicação do CouchDB: um replicador lê o feed de mudanças da origem, pergunta ao destino quais revisões ele ainda não tem via _revs_diff, e envia apenas os documentos necessários. Agora passo a palavra ao Integrante 3 para contrastar tudo isso com a arquitetura do Couchbase.">
@@ -867,7 +1348,7 @@
             <ul class="tech-list">
               <li>Funções JavaScript/Erlang salvas em <strong>Design Documents</strong>.</li>
               <li><code class="inline">emit(key, value)</code> alimenta uma B+Tree secundária incrementalmente.</li>
-              <li>Agregações (<code class="inline">_count</code>, <code class="inline">_sum</code>, <code class="inline">_stats</code>) pré-computadas dentro dos nós internos da B+Tree.</li>
+              <li>Reduções (<code class="inline">_count</code>, <code class="inline">_sum</code>, <code class="inline">_stats</code>) ficam pré-computadas nos nós internos da B+Tree.</li>
             </ul>
           </div>
 
@@ -876,7 +1357,7 @@
             <ul class="tech-list">
               <li>Introduzido no CouchDB 2.0+ (doado pelo IBM Cloudant).</li>
               <li>Sintaxe declarativa em JSON (<code class="inline">$eq</code>, <code class="inline">$gt</code>, <code class="inline">$in</code>, <code class="inline">$regex</code>) sem escrever JS manual.</li>
-              <li>Cria e consome índices B-Tree automaticamente via <code class="inline">POST /db/_index</code>.</li>
+              <li>Consome índices B-Tree criados via <code class="inline">POST /db/_index</code>.</li>
             </ul>
           </div>
 
@@ -884,21 +1365,27 @@
             <h3>📡 O Endpoint <code class="inline">/_changes</code></h3>
             <ul class="tech-list">
               <li>Exposição direta do log sequencial (<code class="inline">update_seq</code>) via HTTP (Polling, Long-Polling ou Continuous Stream).</li>
-              <li><strong>Couch Replication Protocol:</strong> Lê <code class="inline">_changes</code> ➔ Calcula delta via <code class="inline">_revs_diff</code> ➔ Transfere em lote via <code class="inline">_bulk_docs</code>.</li>
+              <li><strong>Couch Replication Protocol:</strong> Lê <code class="inline">_changes</code> ➔ Calcula delta via <code class="inline">_revs_diff</code> ➔ Envia lote via <code class="inline">_bulk_docs</code>.</li>
             </ul>
           </div>
         </div>
 
-        <pre class="code-block" style="margin-top: 16px;">
-// Exemplo de View MapReduce em Design Document vs. Mango Query (_find)
-// 1. Map Function: function(doc) { if (doc.curso) emit(doc.curso, doc.cra); }
-// 2. Mango Query:  POST /universidade_db/_find  ->  { "selector": { "curso": "Ciencia da Computacao", "cra": { "$gt": 8.5 } } }</pre>
+        <div class="terminal-window" style="margin-top: 14px;">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+            <span class="terminal-title">Comparativo: MapReduce View (JS) vs. Mango Query (_find)</span>
+            <span></span>
+          </div>
+          <pre class="code-block">// 1. Map Function (Design Doc):  function(doc) { if (doc.curso) emit(doc.curso, doc.cra); }
+// 2. Mango Query (POST /_find):  { "selector": { "curso": "Ciencia da Computacao", "cra": { "$gt": 8.5 } } }</pre>
+        </div>
       </section>
 
       <!-- =========================================================
            SLIDE 7: ARQUITETURA COUCHBASE — MEMORY-FIRST E VBUCKETS (INTEGRANTE 3)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchbase"
         data-speaker="Integrante 3"
         data-time="2 min (Acumulado: 14:00)"
         data-script="Obrigado. Entrando agora na engenharia do Couchbase, mudamos completamente de paradigma. Enquanto o CouchDB vai ao disco a cada operação, o Couchbase adota uma arquitetura Memory-First.<br><br>Quando a sua aplicação faz um GET ou UPSERT no Couchbase, a operação acontece diretamente na memória RAM gerenciada pelo Data Service. Assim que o dado é gravado na RAM, o servidor já pode confirmar a escrita em frações de milissegundo, enquanto o protocolo interno DCP (Database Change Protocol) coloca essa mutação em duas filas assíncronas: uma para replicar na RAM de outros nós do cluster e outra para persistir em disco.<br><br>Como o Couchbase distribui dados sem usar nós roteadores ou proxies que adicionam latência? Através dos vBuckets. Todo bucket do Couchbase é dividido de forma fixa em 1024 partições lógicas chamadas vBuckets. O SDK do Couchbase na aplicação aplica um hash CRC32 na chave do documento, faz módulo 1024, descobre exatamente o número do vBucket e consulta um mapa em memória chamado Cluster Map. Com isso, a aplicação abre conexão TCP direto com o servidor exato onde aquele vBucket está ativo, garantindo roteamento em um único salto (single-hop).">
@@ -911,31 +1398,38 @@
             <h3>🚀 Caminho de Dados Memory-First (KV Engine)</h3>
             <ul class="tech-list">
               <li>Leituras e escritas ocorrem diretamente no <strong>Managed Cache em RAM</strong> (resposta em <strong>microssegundos</strong>).</li>
-              <li><strong>DCP (Database Change Protocol):</strong> Fluxo binário ordenado em memória que propaga mutações para:
+              <li><strong>DCP (Database Change Protocol):</strong> Fluxo binário em memória que propaga mutações assincronamente para:
                 <br/>1. <em>Replication Queue</em> (RAM dos nós réplica).
-                <br/>2. <em>Persistence Queue</em> (Storage engines <strong>Couchstore</strong> ou <strong>Magma</strong>).</li>
-              <li>Suporta durabilidade configurável (<code class="inline">majority</code>, <code class="inline">persistToMajority</code>).</li>
+                <br/>2. <em>Persistence Queue</em> (Motores <strong>Couchstore</strong> / <strong>Magma</strong>).</li>
             </ul>
           </div>
 
           <div class="card emerald-border">
             <h3>🧩 Particionamento Estático: 1024 vBuckets</h3>
             <ul class="tech-list">
-              <li>Cada Bucket é dividido em exatamente <strong>1024 vBuckets</strong> (partições lógicas auto-contidas).</li>
-              <li>Cálculo no SDK: <code class="inline">vBucket_ID = CRC32(Document_Key) % 1024</code>.</li>
-              <li>O SDK mantém o <strong>Cluster Map</strong> atualizado: zero nós roteadores intermediários (<em>Single-Hop Routing</em>).</li>
-              <li>Cada vBucket possui <strong>1 Nó Ativo</strong> (CP) e até <strong>3 Réplicas</strong> distribuídas nos demais nós.</li>
+              <li>Cada Bucket é dividido fixamente em <strong>1024 vBuckets</strong>.</li>
+              <li>Fórmula determinística: <code class="inline">vBucket = CRC32(Key) % 1024</code>.</li>
+              <li>O SDK consulta o <strong>Cluster Map</strong> local: zero proxies intermediários (<em>Single-Hop Routing</em> direto ao nó dono do vBucket ativo).</li>
             </ul>
           </div>
         </div>
 
+        <!-- SIMULADOR INTERATIVO CRC32 -> VBUCKET -> SINGLE-HOP -->
         <div class="diagram-box">
+          <div class="sim-header">
+            <span class="sim-title">🧮 Simulador Interativo de Roteamento CRC32 ➔ vBucket (Clique em uma Chave)</span>
+            <div style="display:flex; gap:8px;">
+              <button class="sim-btn" onclick="simVbucket('mat_2026_001', 712, 'Nó 2 (10.0.0.12)', 'Nó 3')">🔑 Key: "mat_2026_001"</button>
+              <button class="sim-btn" onclick="simVbucket('carrinho_998', 184, 'Nó 1 (10.0.0.11)', 'Nó 2')">🔑 Key: "carrinho_998"</button>
+              <button class="sim-btn" onclick="simVbucket('sessao_vip_42', 941, 'Nó 4 (10.0.0.14)', 'Nó 1')">🔑 Key: "sessao_vip_42"</button>
+            </div>
+          </div>
           <div class="flow-row">
-            <div class="flow-node">App SDK: <code class="inline">CRC32("user_42") % 1024 = vB #712</code></div>
-            <span class="flow-arrow">➔</span>
-            <div class="flow-node highlight-blue"><strong>RAM Nó 2 (vB #712 Ativo)</strong><br/>Ack em &lt; 0.5 ms</div>
-            <span class="flow-arrow">➔ DCP Stream ➔</span>
-            <div class="flow-node highlight-green">RAM Nó 3 (vB #712 Réplica) + Disco NVMe</div>
+            <div class="flow-node" id="vbKeyNode">SDK: <code class="inline">CRC32("mat_2026_001") % 1024 = vB #712</code></div>
+            <span class="flow-arrow">➔ TCP Direto ➔</span>
+            <div class="flow-node highlight-blue pulse-active" id="vbActiveNode"><strong>RAM Nó 2 (vB #712 Ativo)</strong><br/>Ack: <strong>0.32 ms</strong></div>
+            <span class="stream-pipe">DCP Stream</span>
+            <div class="flow-node highlight-green" id="vbReplicaNode">RAM Nó 3 (vB #712 Réplica) + NVMe</div>
           </div>
         </div>
       </section>
@@ -944,6 +1438,7 @@
            SLIDE 8: COUCHBASE — MULTI-DIMENSIONAL SCALING (MDS) (INTEGRANTE 3)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchbase"
         data-speaker="Integrante 3"
         data-time="2 min (Acumulado: 16:00)"
         data-script="Outro diferencial arquitetural gigantesco do Couchbase é o Multi-Dimensional Scaling (MDS), sustentado pela arquitetura Multi-Service.<br><br>Na maioria dos bancos NoSQL distribuídos — incluindo o próprio CouchDB em modo cluster, Cassandra ou MongoDB tradicional — cada nó do cluster executa todas as tarefas: guarda dados, atualiza índices e processa consultas pesadas. Isso cria o efeito do 'vizinho barulhento': uma query analítica complexa consome toda a CPU e derruba a latência das leituras por chave primária.<br><br>O Couchbase separa o banco em seis serviços independentes: Data, Index, Query, Full-Text Search, Analytics e Eventing. Com o MDS, nós podemos colocar o Data Service em máquinas com muita memória RAM, o Query Service em máquinas com muitos núcleos de CPU e o Index Service em máquinas com NVMe ultrarrápidos. As mutações fluem do Data Service para o Index Service via memória através do protocolo DCP, sem jamais onerar a CPU que atende as operações de chave-valor.">
@@ -955,45 +1450,57 @@
           <div class="card couchbase-border">
             <h3>1. Data Service (KV)</h3>
             <ul class="tech-list">
-              <li>Operações chave-valor (<code class="inline">GET</code>, <code class="inline">UPSERT</code>, <code class="inline">SUBDOC</code>).</li>
-              <li><strong>Perfil de Hardware:</strong> Alta capacidade de RAM e rede rápida.</li>
+              <li>Operações por chave (<code class="inline">GET</code>, <code class="inline">UPSERT</code>, <code class="inline">SUBDOC</code>).</li>
+              <li><strong>Hardware Alvo:</strong> Servidores com alta densidade de RAM.</li>
             </ul>
+            <div class="meter-group">
+              <div class="meter-label"><span>Uso de Memória RAM (Cache)</span><span style="color:#38bdf8;">94%</span></div>
+              <div class="meter-track"><div class="meter-fill" style="width:94%; background:linear-gradient(90deg,#0284c7,#38bdf8);"></div></div>
+            </div>
           </div>
 
           <div class="card emerald-border">
             <h3>2. Index Service (GSI)</h3>
             <ul class="tech-list">
-              <li>Mantém Índices Secundários Globais (Standard ou <em>Memory-Optimized MOI</em>).</li>
-              <li><strong>Perfil de Hardware:</strong> Alta RAM + SSDs NVMe rápidos.</li>
+              <li>Mantém Índices Secundários Globais (Standard ou <em>MOI in-memory</em>).</li>
+              <li><strong>Hardware Alvo:</strong> Alta RAM + Discos NVMe ultrarrápidos.</li>
             </ul>
+            <div class="meter-group">
+              <div class="meter-label"><span>Throughput NVMe / RAM Scan</span><span style="color:#34d399;">89%</span></div>
+              <div class="meter-track"><div class="meter-fill" style="width:89%; background:linear-gradient(90deg,#059669,#34d399);"></div></div>
+            </div>
           </div>
 
           <div class="card purple-border">
             <h3>3. Query Service (N1QL)</h3>
             <ul class="tech-list">
-              <li>Parser, otimizador de planos (CBO) e executor de consultas SQL++.</li>
-              <li><strong>Perfil de Hardware:</strong> Muitos núcleos de CPU (Compute-intensive).</li>
+              <li>Parser, otimizador de custo (CBO) e executor de queries SQL++.</li>
+              <li><strong>Hardware Alvo:</strong> Múltiplos núcleos de CPU (Compute-heavy).</li>
             </ul>
+            <div class="meter-group">
+              <div class="meter-label"><span>Processamento Paralelo CPU</span><span style="color:#c084fc;">91%</span></div>
+              <div class="meter-track"><div class="meter-fill" style="width:91%; background:linear-gradient(90deg,#7c3aed,#c084fc);"></div></div>
+            </div>
           </div>
 
           <div class="card couchdb-border">
             <h3>4. Search Service (FTS)</h3>
             <ul class="tech-list">
-              <li>Busca textual completa (Bleve) e <strong>Vector Search</strong> (IA/RAG) integrados sem precisar de Elasticsearch externo.</li>
+              <li> Índices invertidos (Bleve) e <strong>Vector Search</strong> (IA/RAG) integrados sem precisar de Elasticsearch externo.</li>
             </ul>
           </div>
 
           <div class="card couchbase-border">
             <h3>5. Analytics Service</h3>
             <ul class="tech-list">
-              <li>Motor MPP colunar para queries OLAP pesadas com isolamento total (Zero ETL dos nós operacionais).</li>
+              <li>Motor MPP colunar para queries OLAP complexas com isolamento total (Zero impacto nos nós KV).</li>
             </ul>
           </div>
 
           <div class="card emerald-border">
             <h3>6. Eventing Service</h3>
             <ul class="tech-list">
-              <li>Triggers reativos em JavaScript (V8) executados assincronamente em resposta a mutações via DCP.</li>
+              <li>Funções Serverless em JavaScript (V8) disparadas em tempo real por mutações via stream DCP.</li>
             </ul>
           </div>
         </div>
@@ -1003,6 +1510,7 @@
            SLIDE 9: COUCHBASE — SCOPES/COLLECTIONS, N1QL (SQL++) E GSI (INTEGRANTE 3)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchbase"
         data-speaker="Integrante 3"
         data-time="2 min (Acumulado: 18:00)"
         data-script="E como nós consultamos e organizamos dados no Couchbase? A partir da versão 7, o Couchbase introduziu uma hierarquia de três níveis: Bucket, Scope e Collection, permitindo multi-tenancy e mapeamento direto de bancos relacionais (Database, Schema e Tabela).<br><br>Mas a grande inovação para desenvolvedores é o N1QL (pronuncia-se Nickel), hoje padronizado como SQL++. É uma implementação completa de ANSI SQL adaptada para JSON. Você escreve SELECT, WHERE, GROUP BY e até INNER JOIN entre coleções diferentes, além de operadores específicos para JSON como UNNEST, que transforma elementos de um array interno em linhas relacionais em tempo de execução.<br><br>Para que o N1QL seja rápido e não faça scatter-gather batendo em todos os nós de dados, o Couchbase usa GSI (Global Secondary Indexes). Os índices vivem de forma independente no Index Service, garantindo que uma query SQL++ saiba exatamente em qual vBucket buscar o documento em milissegundos. Passo agora a palavra ao Integrante 4.">
@@ -1015,33 +1523,37 @@
             <h3>🗂️ Mapeamento Relacional e Recursos SQL++</h3>
             <ul class="tech-list">
               <li><strong>Hierarquia 3 Níveis:</strong> <code class="inline">Bucket</code> (DB) ➔ <code class="inline">Scope</code> (Schema) ➔ <code class="inline">Collection</code> (Tabela).</li>
-              <li><strong>ANSI JOINs Nativos:</strong> <code class="inline">INNER JOIN</code>, <code class="inline">LEFT OUTER JOIN</code> entre coleções JSON distintas.</li>
-              <li><strong>Operadores para Arrays JSON:</strong> <code class="inline">UNNEST</code> (achata arrays internos), <code class="inline">NEST</code>, <code class="inline">ARRAY ... FOR ... END</code>.</li>
-              <li><strong>GSI vs. Scatter-Gather:</strong> O Query Service consulta apenas o nó GSI relevante e busca documentos exatos por chave (ou resolve 100% via <em>Covering Index</em>).</li>
+              <li><strong>ANSI JOINs Nativos:</strong> <code class="inline">INNER JOIN</code>, <code class="inline">LEFT JOIN</code> entre coleções JSON distintas.</li>
+              <li><strong>Operadores para Arrays JSON:</strong> <code class="inline">UNNEST</code> (achata arrays internos em linhas), <code class="inline">NEST</code>, <code class="inline">ARRAY ... FOR ... END</code>.</li>
+              <li><strong>GSI vs. Scatter-Gather:</strong> O Query Service consulta apenas o nó GSI relevante e busca documentos exatos (ou resolve 100% via <em>Covering Index</em>).</li>
             </ul>
           </div>
 
-          <div>
-            <pre class="code-block">
--- Exemplo Real de N1QL (SQL for JSON) no Couchbase
-SELECT m.nome AS aluno,
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div class="terminal-window">
+              <div class="terminal-header">
+                <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+                <span class="terminal-title">Couchbase Query Workbench • SQL++ (N1QL)</span>
+                <span></span>
+              </div>
+              <pre class="code-block">SELECT m.nome AS aluno,
        m.curso,
        d.nome AS disciplina,
        d.nota
 FROM `academico`.`graduacao`.`matriculas` AS m
 UNNEST m.disciplinas AS d
 WHERE m.curso = "Ciencia da Computacao"
-  AND d.codigo = "BD02"
-  AND d.nota >= 8.5
-ORDER BY d.nota DESC
-LIMIT 10;</pre>
-            <div class="diagram-box" style="margin-top: 12px;">
+  AND d.codigo = "BD02" AND d.nota >= 8.5
+ORDER BY d.nota DESC;</pre>
+            </div>
+
+            <div class="diagram-box" style="margin-top:0;">
               <div class="flow-row">
                 <div class="flow-node">1. Query Service (SQL++)</div>
                 <span class="flow-arrow">➔</span>
                 <div class="flow-node highlight-green">2. Index Service (GSI Scan)</div>
                 <span class="flow-arrow">➔</span>
-                <div class="flow-node highlight-blue">3. Data Service (Fetch KV em RAM)</div>
+                <div class="flow-node highlight-blue">3. Data Service (Fetch KV RAM)</div>
               </div>
             </div>
           </div>
@@ -1052,6 +1564,7 @@ LIMIT 10;</pre>
            SLIDE 10: ONDE O APACHE COUCHDB BRILHA (INTEGRANTE 4)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchdb"
         data-speaker="Integrante 4"
         data-time="2 min 45s (Acumulado: 20:45)"
         data-script="Obrigado. Agora que compreendemos as duas arquiteturas, surge a pergunta essencial de um arquiteto de soluções: quando escolher cada um? Vamos começar pelo Apache CouchDB.<br><br>O CouchDB é imbatível quando o requisito principal do sistema é Offline-First e Sincronização na Borda (Edge). Graças ao seu protocolo de replicação sobre HTTP e ao modelo de revisões _rev, surgiu o PouchDB: um banco em JavaScript que roda direto no navegador do usuário ou dentro de um app React Native/Electron.<br><br>Imagine um aplicativo usado por médicos em regiões remotas da Amazônia ou técnicos de manutenção dentro de minas subterrâneas. O aplicativo grava dados localmente no PouchDB com zero latência de rede. Quando o dispositivo encontra sinal 4G ou Wi-Fi por apenas 30 segundos, uma única linha de código aciona a replicação contínua com o Apache CouchDB central na nuvem. Além disso, o motor em Erlang do CouchDB é extremamente leve, podendo rodar em um Raspberry Pi na borda com pouquíssima memória RAM.">
@@ -1064,7 +1577,7 @@ LIMIT 10;</pre>
             <h3>📱 Arquitetura Offline-First (CouchDB + PouchDB)</h3>
             <ul class="tech-list">
               <li><strong>PouchDB:</strong> Implementação JavaScript do protocolo CouchDB que armazena dados localmente no navegador (IndexedDB) ou mobile (SQLite).</li>
-              <li><strong>Zero Latência Percebida:</strong> A aplicação lê e escreve 100% no banco local, funcionando perfeitamente sem internet.</li>
+              <li><strong>Zero Latência Percebida:</strong> A aplicação lê e escreve 100% no banco local, funcionando mesmo sem internet.</li>
               <li><strong>Sincronização Bidirecional em 1 Linha:</strong><br/>
                 <code class="inline">localDB.sync(remoteCouchDB, { live: true, retry: true })</code></li>
             </ul>
@@ -1074,8 +1587,8 @@ LIMIT 10;</pre>
             <h3>🛰️ Cenários Ideais de Engenharia</h3>
             <ul class="tech-list">
               <li><strong>Operações de Campo sem Rede:</strong> Logística em estradas, plataformas marítimas, aviação, minas subterrâneas e zonas rurais.</li>
-              <li><strong>Edge Computing & IoT:</strong> Consumo mínimo de recursos (roda em containers ou Raspberry Pi com ~64–128 MB de RAM).</li>
-              <li><strong>Topologias Multi-Site Descentralizadas:</strong> Filiais ou navios que operam autonomamente e sincronizam com a matriz via satélite.</li>
+              <li><strong>Edge Computing & IoT:</strong> Consumo mínimo de recursos (roda em Raspberry Pi / containers com ~64–128 MB de RAM).</li>
+              <li><strong>Topologias Multi-Site Descentralizadas:</strong> Filiais ou navios que operam autonomamente e sincronizam via satélite.</li>
             </ul>
           </div>
         </div>
@@ -1083,8 +1596,8 @@ LIMIT 10;</pre>
         <div class="diagram-box">
           <div class="flow-row">
             <div class="flow-node highlight-orange"><strong>App Mobile / Browser (PouchDB)</strong><br/>Leitura/Escrita Local Instantânea</div>
-            <span class="flow-arrow">⇄ HTTP Sync (<code class="inline">_changes</code> + <code class="inline">_revs_diff</code>) quando há rede ⇄</span>
-            <div class="flow-node highlight-green"><strong>Cluster Central Apache CouchDB</strong><br/>Consolidação e Backup na Nuvem</div>
+            <span class="stream-pipe">⇄ HTTP Sync (_changes + _revs_diff) ⇄</span>
+            <div class="flow-node highlight-green pulse-active"><strong>Cluster Central Apache CouchDB</strong><br/>Consolidação e Backup na Nuvem</div>
           </div>
         </div>
       </section>
@@ -1093,6 +1606,7 @@ LIMIT 10;</pre>
            SLIDE 11: CASOS REAIS DE MERCADO E TRADE-OFFS DO COUCHDB (INTEGRANTE 4)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchdb"
         data-speaker="Integrante 4"
         data-time="2 min 45s (Acumulado: 23:30)"
         data-script="Olhando para casos reais no mercado, o exemplo mais clássico do CouchDB foi o registro oficial do npm, que durante anos usou o protocolo de replicação do CouchDB para distribuir metadados de milhões de pacotes Node.js para mirrors no mundo inteiro. Outro caso de altíssimo nível técnico é o Hyperledger Fabric, o principal framework de Blockchain corporativo da Linux Foundation, que adota o Apache CouchDB como banco de estado oficial (World State) para armazenar o estado atual dos ativos em JSON auditável. Na área humanitária, organizações na África usaram CouchDB + PouchDB durante surtos de Ebola para coletar dados de pacientes em tablets totalmente offline.<br><br>Porém, todo arquiteto precisa conhecer os trade-offs. Você não deve escolher o CouchDB para um sistema de telemetria de alta frequência que atualiza o mesmo documento mil vezes por segundo, pois cada atualização cria uma nova folha na árvore _rev e infla o arquivo append-only até a compactação rodar. Também não é indicado quando seu sistema exige JOINs ad-hoc complexos. Agora passo a palavra para o Integrante 5 abordar o Couchbase.">
@@ -1104,10 +1618,10 @@ LIMIT 10;</pre>
           <div class="card emerald-border">
             <h3>🏆 Casos Reais no Mercado Global</h3>
             <ul class="tech-list">
-              <li><strong>Hyperledger Fabric (Linux Foundation):</strong> Utiliza o CouchDB como <em>World State Database</em> oficial para contratos inteligentes (Chaincode) devido à determinicidade e queries JSON ricas.</li>
+              <li><strong>Hyperledger Fabric (Linux Foundation):</strong> Utiliza o CouchDB como <em>World State Database</em> oficial para Smart Contracts devido à determinicidade e queries JSON.</li>
               <li><strong>npm Registry:</strong> Base histórica de replicação global de metadados de pacotes JavaScript e <em>mirrors</em> offline corporativos.</li>
               <li><strong>eHealth Africa & Médicos Sem Fronteiras:</strong> Rastreamento epidemiológico em campo (combate ao Ebola) em áreas sem conectividade.</li>
-              <li><strong>IBM Cloudant:</strong> Oferta DBaaS global na IBM Cloud construída sobre a arquitetura do Apache CouchDB.</li>
+              <li><strong>IBM Cloudant:</strong> Oferta DBaaS global na IBM Cloud construída sobre o Apache CouchDB.</li>
             </ul>
           </div>
 
@@ -1126,6 +1640,7 @@ LIMIT 10;</pre>
            SLIDE 12: ONDE O COUCHBASE BRILHA — ESCALA E XDCR (INTEGRANTE 5)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchbase"
         data-speaker="Integrante 5"
         data-time="2 min 45s (Acumulado: 26:15)"
         data-script="Obrigado. Quando olhamos para o Couchbase, entramos no território das aplicações mission-critical de altíssima vazão e latência sub-milissegundo.<br><br>Em muitas arquiteturas modernas, as equipes colocam um banco documental ou relacional no fundo e precisam adicionar um cluster de Redis ou Memcached na frente para aguentar o tráfego de leitura. Isso cria um problema clássico de engenharia: invalidação de cache e sincronização dupla. O Couchbase elimina essa complexidade porque ele já é o cache em memória e o banco de dados persistente com suporte a SQL++ na mesma plataforma.<br><br>Além disso, para escala global entre continentes, o Couchbase possui o XDCR (Cross Data Center Replication). Diferente da replicação via HTTP do CouchDB, o XDCR transmite mutações diretamente da memória RAM de um datacenter na Virgínia para a memória RAM de outro datacenter em São Paulo usando streams binários DCP, resolvendo conflitos em tempo real via Hybrid Logical Clocks.">
@@ -1138,7 +1653,7 @@ LIMIT 10;</pre>
             <h3>⚡ Fim da Arquitetura Dupla (DB + Cache Externo)</h3>
             <ul class="tech-list">
               <li>Substitui a complexa combinação <strong>RDBMS/MongoDB + Redis/Memcached</strong> por um único cluster unificado.</li>
-              <li>Elimina bugs de <em>Cache Invalidation</em>, <em>Cache Stampede</em> e dessincronização entre cache e banco.</li>
+              <li>Elimina bugs de <em>Cache Invalidation</em>, <em>Cache Stampede</em> e dessincronização entre camadas.</li>
               <li><strong>Cenários Ideais:</strong> Gestão de Sessão/Perfil de milhões de usuários, Catálogos de E-commerce, Antifraude em tempo real, Jogos Online e AdTech.</li>
             </ul>
           </div>
@@ -1146,7 +1661,7 @@ LIMIT 10;</pre>
           <div class="card purple-border">
             <h3>🌍 XDCR (Cross Data Center Replication)</h3>
             <ul class="tech-list">
-              <li>Replicação assíncrona <strong>Memória-a-Memória</strong> entre datacenters ou nuvens distintas (ex: AWS us-east ⇄ GCP southamerica-east).</li>
+              <li>Replicação assíncrona <strong>Memória-a-Memória</strong> entre datacenters ou nuvens distintas (AWS ⇄ GCP ⇄ Azure).</li>
               <li>Suporta topologias Unidirecionais, Bidirecionais (<em>Active-Active</em>) e filtragem avançada por expressões SQL++.</li>
               <li><strong>Resolução Automática de Conflitos:</strong> Por contagem de revisões (<em>Sequence Number</em>) ou Timestamp com <strong>HLC (Hybrid Logical Clocks)</strong>.</li>
             </ul>
@@ -1155,9 +1670,9 @@ LIMIT 10;</pre>
 
         <div class="diagram-box">
           <div class="flow-row">
-            <div class="flow-node highlight-blue"><strong>Cluster A (São Paulo)</strong><br/>RAM Data Service</div>
-            <span class="flow-arrow">⇄ XDCR (Stream Binário DCP sobre WAN / TLS) ⇄</span>
-            <div class="flow-node highlight-blue"><strong>Cluster B (Virgínia - EUA)</strong><br/>RAM Data Service</div>
+            <div class="flow-node highlight-blue pulse-active"><strong>Cluster A (São Paulo)</strong><br/>RAM Data Service</div>
+            <span class="stream-pipe">⇄ XDCR (Stream Binário DCP sobre WAN / TLS) ⇄</span>
+            <div class="flow-node highlight-blue pulse-active"><strong>Cluster B (Virgínia - EUA)</strong><br/>RAM Data Service</div>
           </div>
         </div>
       </section>
@@ -1166,6 +1681,7 @@ LIMIT 10;</pre>
            SLIDE 13: CASOS REAIS DE MERCADO E TRADE-OFFS DO COUCHBASE (INTEGRANTE 5)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchbase"
         data-speaker="Integrante 5"
         data-time="2 min 45s (Acumulado: 29:00)"
         data-script="No mercado corporativo, os números do Couchbase impressionam. O LinkedIn utiliza o Couchbase como camada crítica de dados atendendo mais de 10 milhões de operações por segundo com latência inferior a 2 milissegundos. Na indústria de aviação, gigantes como Amadeus, Sabre e United Airlines processam disponibilidade de voos e check-ins de milhões de passageiros no Couchbase. No setor financeiro e de pagamentos, o PayPal usa Couchbase para análise de sessão e prevenção a fraudes em tempo real.<br><br>E quais são os trade-offs do Couchbase? O primeiro é o custo de hardware e memória. O Couchbase foi desenhado para servidores com dezenas ou centenas de gigabytes de RAM; tentar rodá-lo em uma máquina virtual minúscula de 512 MB é inviável. O segundo é a complexidade operacional: planejar o dimensionamento de serviços Data, Index e Query e gerenciar rebalanceamentos de vBuckets exige uma equipe de engenharia de dados madura. Passo agora a palavra ao Integrante 6 para consolidar o comparativo direto.">
@@ -1187,9 +1703,9 @@ LIMIT 10;</pre>
           <div class="card couchdb-border">
             <h3>⚠️ Trade-offs (Quando Evitar o Couchbase)</h3>
             <ul class="tech-list">
-              <li><strong>Pegada Pesada de Memória RAM:</strong> Exige servidores robustos para manter o <em>Working Set</em> e índices em RAM (mínimo recomendado em produção: 16 GB–64 GB+ por nó).</li>
+              <li><strong>Pegada Pesada de Memória RAM:</strong> Exige servidores robustos para manter o <em>Working Set</em> e índices em RAM (16 GB–64 GB+ por nó em produção).</li>
               <li><strong>Complexidade Operacional (Day-2 Ops):</strong> Requer dimensionamento cuidadoso de cotas de serviços MDS, monitoramento de <em>Cache Miss Ratio</em> e rebalanceamento de vBuckets.</li>
-              <li><strong>Licenciamento Enterprise:</strong> Recursos avançados (como motor Magma, MOI e certas features de segurança/backup) são restritos à edição Enterprise/Capella.</li>
+              <li><strong>Licenciamento Enterprise:</strong> Recursos avançados (como motor Magma, MOI e certas features de segurança) são exclusivos da edição Enterprise/Capella.</li>
             </ul>
           </div>
         </div>
@@ -1199,6 +1715,7 @@ LIMIT 10;</pre>
            SLIDE 14: QUADRO COMPARATIVO DIRETO — PARTE 1 (INTEGRANTE 6)
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Integrante 6"
         data-time="2 min 45s (Acumulado: 31:45)"
         data-script="Obrigado. Para sintetizar nossa análise técnica, construímos uma matriz comparativa direta dividida em seis pilares fundamentais da arquitetura de banco de dados.<br><br>Primeiro, no Modelo de Dados: ambos guardam documentos JSON, mas o Couchbase organiza os dados em Bucket, Scope e Collection, facilitando a migração de sistemas relacionais, enquanto o CouchDB trabalha diretamente com bancos de dados planos e suporta anexos binários nativos vinculados ao documento.<br><br>Segundo, sob a lente do Teorema CAP: o Apache CouchDB é essencialmente AP. Diante de uma partição de rede, qualquer nó aceita escritas e mantém a disponibilidade, resolvendo divergências depois via árvore de revisões. Já o Couchbase é CP por padrão: como cada chave pertence a apenas um único vBucket ativo no cluster em um dado momento, todas as leituras e escritas daquela chave passam pelo mesmo nó primário em memória, garantindo consistência imediata (Read-Your-Own-Writes).<br><br>Terceiro, em Mecanismos de Consulta: o CouchDB exige planejamento prévio com Views MapReduce ou filtros JSON simples via Mango (_find) sem suporte a JOIN. Já o Couchbase entrega o poder do SQL++ (N1QL) com ANSI JOINs e transações ACID multi-documento.">
@@ -1243,6 +1760,7 @@ LIMIT 10;</pre>
            SLIDE 15: QUADRO COMPARATIVO DIRETO — PARTE 2 (INTEGRANTE 6)
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Integrante 6"
         data-time="2 min 45s (Acumulado: 34:30)"
         data-script="Continuando nossa matriz comparativa nos três últimos pilares:<br><br>Em Mecanismos de Replicação, o protocolo HTTP do CouchDB é universal e permite que até um navegador web participe da replicação de igual para igual com o servidor. O Couchbase, por sua vez, separa isso: usa o protocolo binário DCP/XDCR de altíssima velocidade entre servidores e exige produtos dedicados — o Sync Gateway e o Couchbase Lite — caso você queira sincronização mobile.<br><br>Em Performance e Latência, não há competição direta porque foram feitos para escalas diferentes: o CouchDB opera na casa dos milissegundos, limitado pelo protocolo HTTP e escrita append-only em disco; o Couchbase opera na casa de microssegundos (sub-milissegundo) graças ao cache gerenciado em memória e conexão TCP direta ao vBucket.<br><br>Por fim, na Complexidade Operacional, o CouchDB é enxuto e simples de subir em qualquer infraestrutura, exigindo cuidado apenas com a compactação de disco e conflitos de revisão. Já o Couchbase é uma plataforma distribuída robusta que demanda planejamento de capacidade de RAM e topologia Multi-Service. Passo agora a palavra ao Integrante 7, que conduzirá nossa demonstração prática e workshop.">
@@ -1282,6 +1800,7 @@ LIMIT 10;</pre>
            SLIDE 16: WORKSHOP PRÁTICO — TOPOLOGIA DOCKER COMPOSE (INTEGRANTE 7)
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Integrante 7"
         data-time="2 min (Acumulado: 36:30)"
         data-script="Obrigado. Agora vamos sair da teoria e provar esses conceitos arquiteturais na prática. Preparamos um laboratório 100% reproduzível via Docker Compose que sobe simultaneamente o Apache CouchDB 3.3 e o Couchbase Server 7.6.<br><br>Reparem na diferença imediata já na configuração de rede dos containers: para o CouchDB, precisamos expor apenas uma única porta, a 5984, porque absolutamente tudo — desde administração, inserção de dados, queries Mango até a interface web Fauxton — acontece sobre HTTP REST padrão.<br><br>Já no container do Couchbase, expomos a porta 8091 para o Console de Gerenciamento, a 8093 para o motor de consultas N1QL e a 11210 para o protocolo binário de chave-valor onde os SDKs se conectam diretamente aos vBuckets.">
@@ -1290,10 +1809,13 @@ LIMIT 10;</pre>
         <p class="slide-subtitle">Subindo Apache CouchDB 3.3 e Couchbase Server 7.6 lado a lado</p>
 
         <div class="grid-2">
-          <div>
-            <pre class="code-block">
-# docker-compose.yml (Pronto na pasta /workshop)
-version: '3.8'
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+              <span class="terminal-title">workshop/docker-compose.yml</span>
+              <span></span>
+            </div>
+            <pre class="code-block">version: '3.8'
 services:
   couchdb:
     image: apache/couchdb:3.3
@@ -1332,6 +1854,7 @@ services:
            SLIDE 17: LIVE DEMO 1 — APACHE COUCHDB (INTEGRANTE 7)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchdb"
         data-speaker="Integrante 7"
         data-time="2 min 15s (Acumulado: 38:45)"
         data-script="Na primeira parte da nossa demonstração prática com o Apache CouchDB, vamos usar apenas o cURL no terminal para mostrar que o banco é um servidor web nativo.<br><br>Primeiro criamos o banco universidade_db e inserimos o documento aluno_01. O CouchDB nos devolve rev: 1-.... Em seguida, tentamos atualizar a nota desse aluno sem passar o _rev — e vemos ao vivo o erro 409 Document update conflict, comprovando na prática o bloqueio otimista MVCC que explicamos no Slide 5. Quando passamos o _rev correto, a revisão avança para 2-....<br><br>Também deixamos um segundo terminal aberto conectado ao endpoint _changes?feed=continuous. No exato instante em que alteramos o documento no primeiro terminal, o evento JSON salta na tela do segundo terminal em tempo real, demonstrando como o protocolo de replicação detecta mutações.">
@@ -1340,40 +1863,47 @@ services:
         <p class="slide-subtitle">Comandos executados diretamente contra o servidor HTTP nativo na porta <code class="inline">5984</code></p>
 
         <div class="grid-2">
-          <div>
-            <pre class="code-block">
-# 1. Criar Banco e Inserir Documento (Gera rev "1-...")
-curl -X PUT http://admin:admin123@localhost:5984/universidade_db
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+              <span class="terminal-title">Terminal 1 • Ciclo MVCC & Conflito 409</span>
+              <button class="sim-btn orange" style="padding:3px 10px; font-size:0.74rem;" onclick="toggleSimOutput('outCouch1')">▶ Simular Resposta HTTP</button>
+            </div>
+            <pre class="code-block"># 1. Criar Banco e Inserir Doc (Gera rev "1-...")
 curl -X PUT http://admin:admin123@localhost:5984/universidade_db/aluno_01 \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Ana Silva","curso":"Ciencia da Computacao","cra":8.7}'
+  -d '{"nome":"Ana Silva","curso":"Computacao","cra":8.7}'
 
-# 2. Tentar Atualizar SEM _rev -> Dispara HTTP 409 Conflict!
+# 2. Tentar Atualizar SEM _rev -> Dispara HTTP 409!
 curl -i -X PUT http://admin:admin123@localhost:5984/universidade_db/aluno_01 \
-  -H "Content-Type: application/json" \
   -d '{"nome":"Ana Silva","cra":9.1}'
-# HTTP/1.1 409 Conflict -> {"error":"conflict","reason":"Document update conflict."}
 
-# 3. Atualizar ENVIANDO o _rev atual -> Sucesso (Gera rev "2-...")
+# 3. Atualizar ENVIANDO o _rev atual -> Gera rev "2-..."
 curl -X PUT http://admin:admin123@localhost:5984/universidade_db/aluno_01 \
-  -H "Content-Type: application/json" \
   -d '{"_rev":"1-4c6114c...","nome":"Ana Silva","cra":9.1}'</pre>
+            <div class="sim-output-box" id="outCouch1">
+              ✔ [1] {"ok":true, "id":"aluno_01", "rev":"1-4c6114c65e295552ab1019e2b046b10e"}<br/>
+              ✖ [2] <span style="color:#fda4af;">HTTP/1.1 409 Conflict -> {"error":"conflict","reason":"Document update conflict."}</span><br/>
+              ✔ [3] {"ok":true, "id":"aluno_01", "rev":"2-7051cbe5c8faecd085a3fa619e6e6337"}
+            </div>
           </div>
 
-          <div>
-            <pre class="code-block">
-# 4. Consulta Declarativa com Mango Query (POST /_find)
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+              <span class="terminal-title">Terminal 2 • Mango Query (_find) & Stream _changes</span>
+              <button class="sim-btn emerald" style="padding:3px 10px; font-size:0.74rem;" onclick="toggleSimOutput('outCouch2')">▶ Simular Stream _changes</button>
+            </div>
+            <pre class="code-block"># 4. Consulta Declarativa com Mango Query (POST /_find)
 curl -X POST http://admin:admin123@localhost:5984/universidade_db/_find \
   -H "Content-Type: application/json" \
-  -d '{
-    "selector": { "cra": { "$gt": 8.5 } },
-    "fields": ["_id", "_rev", "nome", "cra"]
-  }'
+  -d '{"selector": {"cra": {"$gt": 8.5}}, "fields": ["_id","nome","cra"]}'
 
-# 5. Escutar Feed de Mudanças em Tempo Real (Terminal 2)
-curl -N "http://admin:admin123@localhost:5984/universidade_db/_changes?feed=continuous&include_docs=true&since=now"
-# Saída imediata a cada mutação:
-# {"seq":"3-g1...","id":"aluno_01","changes":[{"rev":"2-..."}]}</pre>
+# 5. Escutar Feed de Mudanças em Tempo Real (Stream Contínuo)
+curl -N "http://admin:admin123@localhost:5984/universidade_db/_changes?feed=continuous&include_docs=true&since=now"</pre>
+            <div class="sim-output-box" id="outCouch2">
+              📡 [STREAM _changes RECEBIDO EM TEMPO REAL]:<br/>
+              {"seq":"3-g1AAA...","id":"aluno_01","changes":[{"rev":"2-7051cbe..."}],"doc":{"_id":"aluno_01","nome":"Ana Silva","cra":9.1}}
+            </div>
           </div>
         </div>
       </section>
@@ -1382,6 +1912,7 @@ curl -N "http://admin:admin123@localhost:5984/universidade_db/_changes?feed=cont
            SLIDE 18: LIVE DEMO 2 — COUCHBASE N1QL & SCRIPT PYTHON (INTEGRANTE 7)
            ========================================================= -->
       <section class="slide"
+        data-theme="couchbase"
         data-speaker="Integrante 7"
         data-time="2 min 15s (Acumulado: 41:00)"
         data-script="Na segunda etapa do nosso laboratório, entramos no Web Console do Couchbase na porta 8091. Criamos o bucket academico, o escopo graduacao e a coleção matriculas.<br><br>No Query Workbench, executamos comandos SQL++ (N1QL) idênticos ao SQL que já conhecemos do mundo relacional, criando um índice GSI secundário e rodando um SELECT com filtros e UNNEST sobre arrays internos de disciplinas do aluno. Ao olharmos para o painel de estatísticas em tempo real do Couchbase, vemos que 100% das leituras vieram da memória RAM com tempo de resposta na faixa de microssegundos.<br><br>Por fim, rodamos nosso script Python conectando direto no banco para demonstrar um fluxo CRUD completo com tratamento de concorrência. Agora podemos testar o conhecimento da turma com nossas 5 questões interativas de arquitetura!">
@@ -1390,38 +1921,34 @@ curl -N "http://admin:admin123@localhost:5984/universidade_db/_changes?feed=cont
         <p class="slide-subtitle">Consultando JSON com sintaxe SQL padrão e validando latência em memória</p>
 
         <div class="grid-2">
-          <div>
-            <pre class="code-block">
--- No Query Workbench do Couchbase (http://localhost:8091)
--- 1. Criar Índices GSI (Primário e Secundário Composto)
-CREATE PRIMARY INDEX `idx_primary`
-ON `academico`.`graduacao`.`matriculas`;
-
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+              <span class="terminal-title">Couchbase Query Workbench (:8091) • SQL++</span>
+              <button class="sim-btn" style="padding:3px 10px; font-size:0.74rem;" onclick="toggleSimOutput('outN1ql')">▶ Executar Query SQL++</button>
+            </div>
+            <pre class="code-block">-- 1. Criar Índice GSI Secundário Composto
 CREATE INDEX `idx_curso_cra`
 ON `academico`.`graduacao`.`matriculas`(`curso`, `cra` DESC);
 
--- 2. Inserir Documento JSON via SQL++
-INSERT INTO `academico`.`graduacao`.`matriculas` (KEY, VALUE)
-VALUES ("mat_001", {
-  "nome": "Fernanda Lima",
-  "curso": "Ciencia da Computacao",
-  "cra": 9.4,
-  "disciplinas": [
-    {"codigo": "BD02", "nome": "Bancos NoSQL", "nota": 9.8}
-  ]
-});
-
--- 3. Consultar com UNNEST + Índice GSI Secundário
-SELECT m.nome, d.nome AS disciplina, d.nota
+-- 2. Consultar com UNNEST achatando Array JSON interno
+SELECT m.nome AS aluno, d.nome AS disciplina, d.nota
 FROM `academico`.`graduacao`.`matriculas` AS m
 UNNEST m.disciplinas AS d
 WHERE m.curso = "Ciencia da Computacao" AND m.cra >= 9.0;</pre>
+            <div class="sim-output-box" id="outN1ql">
+              ⚡ Status: success | Elapsed: <strong>1.42 ms</strong> | Index Used: <strong>idx_curso_cra (GSI)</strong> | Cache Miss: <strong>0%</strong><br/>
+              [ {"aluno": "Fernanda Lima", "disciplina": "Bancos NoSQL", "nota": 9.8}, {"aluno": "Fernanda Lima", "disciplina": "Sistemas Distribuidos", "nota": 9.0} ]
+            </div>
           </div>
 
-          <div>
-            <pre class="code-block">
-# Trecho do Script: workshop/crud_couchdb_demo.py
-def create_ou_update_documento(doc_id: str, payload: dict) -> str:
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+              <span class="terminal-title">workshop/crud_couchdb_demo.py • Python 3</span>
+              <button class="sim-btn emerald" style="padding:3px 10px; font-size:0.74rem;" onclick="toggleSimOutput('outPy')">▶ Simular Script Python</button>
+            </div>
+            <pre class="code-block">def create_ou_update_documento(doc_id: str, payload: dict) -> str:
     url = f"{BASE_URL}/{DB_NAME}/{doc_id}"
     resp = requests.put(url, auth=AUTH, json=payload)
 
@@ -1431,14 +1958,13 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
             "possui revisão mais recente! Envie o '_rev' atual."
         )
     resp.raise_for_status()
-    return resp.json()["rev"]
-
-# Execução no terminal:
-# $ python workshop/crud_couchdb_demo.py
-# [OK] Banco 'universidade_db' pronto para uso.
-# [WRITE OK] ID: aluno_demo_python | Nova Revisão: 1-92a8...
-# [CONFLITO MVCC - HTTP 409] Capturado e tratado com sucesso!
-# [WRITE OK] ID: aluno_demo_python | Nova Revisão: 2-f41c...</pre>
+    return resp.json()["rev"]</pre>
+            <div class="sim-output-box" id="outPy">
+              [OK] Banco 'universidade_db' pronto para uso.<br/>
+              [WRITE OK] ID: aluno_demo_python | Nova Revisão (_rev): 1-92a8f4...<br/>
+              <span style="color:#fde047;">[CONFLITO MVCC - HTTP 409] Capturado ao tentar atualizar sem _rev!</span><br/>
+              [WRITE OK] ID: aluno_demo_python | Nova Revisão (_rev): 2-c18b30...
+            </div>
           </div>
         </div>
       </section>
@@ -1447,6 +1973,7 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
            SLIDE 19 (BÔNUS INTERATIVO): AVALIAÇÃO — QUESTÕES 1 A 3
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Todos os Integrantes (Dinâmica com a Turma)"
         data-time="Bônus / Perguntas"
         data-script="Para fixar os conceitos arquiteturais apresentados, preparamos 5 questões inéditas de nível universitário. Clique em qualquer alternativa na tela para validar a resposta e exibir a justificativa técnica detalhada.">
@@ -1514,6 +2041,7 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
            SLIDE 20 (BÔNUS INTERATIVO): AVALIAÇÃO — QUESTÕES 4 E 5
            ========================================================= -->
       <section class="slide"
+        data-theme="mixed"
         data-speaker="Todos os Integrantes (Encerramento)"
         data-time="Bônus / Encerramento"
         data-script="Aqui estão as últimas duas questões avaliando Teorema CAP, Offline-First com PouchDB e o funcionamento de Tombstones e Compactação. Muito obrigado a todos pela atenção e estamos abertos a dúvidas!">
@@ -1562,7 +2090,7 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
 
     </main>
 
-    <!-- TELEPROMPTER / SPEAKER NOTES SIDE PANEL (Inicia oculto para aproveitar 100% da TV 50") -->
+    <!-- TELEPROMPTER / SPEAKER NOTES SIDE PANEL -->
     <aside class="notes-panel hidden" id="notesPanel">
       <div class="notes-header">
         <span class="notes-speaker-badge" id="notesSpeaker">Integrante 1</span>
@@ -1572,8 +2100,8 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
         Roteiro de Fala Textual (Teleprompter):
       </div>
       <div class="notes-script" id="notesScript"></div>
-      <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
-        💡 <strong>Dica:</strong> Pressione <code class="inline">R</code> para abrir/fechar esta gaveta flutuante, ou use <code class="inline">+</code> e <code class="inline">-</code> para ajustar o tamanho da fonte na TV!
+      <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-glass); font-size: 0.85rem; color: var(--text-muted);">
+        💡 <strong>Atalhos de Palco:</strong> <code class="inline">R</code> Teleprompter • <code class="inline">G</code> Mapa • <code class="inline">L</code> Laser • <code class="inline">+</code>/<code class="inline">-</code> Zoom TV
       </div>
     </aside>
   </div>
@@ -1592,6 +2120,7 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
     const slides = Array.from(document.querySelectorAll('.slide'));
     let currentIndex = 0;
     let tvScale = 1.12;
+    let appendRevisionCount = 2;
 
     // Timer state
     let timerSeconds = 0;
@@ -1613,6 +2142,21 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
       applyZoom();
     }
 
+    function updateAmbientTheme(theme) {
+      const orb1 = document.getElementById('orb1');
+      const orb2 = document.getElementById('orb2');
+      if (theme === 'couchdb') {
+        orb1.style.background = 'radial-gradient(circle, #ff6b2b, transparent 70%)';
+        orb2.style.background = 'radial-gradient(circle, #f59e0b, transparent 70%)';
+      } else if (theme === 'couchbase') {
+        orb1.style.background = 'radial-gradient(circle, #00d2ff, transparent 70%)';
+        orb2.style.background = 'radial-gradient(circle, #6366f1, transparent 70%)';
+      } else {
+        orb1.style.background = 'radial-gradient(circle, #ff6b2b, transparent 70%)';
+        orb2.style.background = 'radial-gradient(circle, #00d2ff, transparent 70%)';
+      }
+    }
+
     function updateSlideUI() {
       slides.forEach((slide, idx) => {
         slide.classList.toggle('active', idx === currentIndex);
@@ -1622,7 +2166,13 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
       const speaker = activeSlide.getAttribute('data-speaker') || '';
       const timeEst = activeSlide.getAttribute('data-time') || '';
       const scriptHtml = activeSlide.getAttribute('data-script') || '';
+      const theme = activeSlide.getAttribute('data-theme') || 'mixed';
 
+      updateAmbientTheme(theme);
+
+      // Update speaker avatar badge (I1..I7 or ★)
+      const match = speaker.match(/Integrante (\d)/);
+      document.getElementById('speakerAvatar').textContent = match ? `I${match[1]}` : '★';
       document.getElementById('currentSpeakerLabel').textContent = `${speaker} • ${timeEst}`;
       document.getElementById('notesSpeaker').textContent = speaker;
       document.getElementById('notesTime').textContent = `⏱ ${timeEst}`;
@@ -1662,6 +2212,95 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
       }
     }
 
+    // Laser Pointer Mode (Tecla L)
+    function toggleLaser() {
+      document.body.classList.toggle('laser-active');
+      document.getElementById('btnLaser').classList.toggle('active', document.body.classList.contains('laser-active'));
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (document.body.classList.contains('laser-active')) {
+        const dot = document.getElementById('laserDot');
+        dot.style.left = `${e.clientX}px`;
+        dot.style.top = `${e.clientY}px`;
+      }
+    });
+
+    // Slide Overview Modal (Tecla G)
+    function buildOverview() {
+      const grid = document.getElementById('overviewGrid');
+      grid.innerHTML = '';
+      slides.forEach((s, idx) => {
+        const title = s.querySelector('.slide-title, h1, h2')?.textContent || `Slide ${idx + 1}`;
+        const spk = s.getAttribute('data-speaker') || '';
+        const div = document.createElement('div');
+        div.className = `overview-item ${idx === currentIndex ? 'current' : ''}`;
+        div.innerHTML = `
+          <div style="font-size:0.75rem; color:var(--couchbase-blue); font-weight:800; margin-bottom:4px;">SLIDE ${idx + 1} • ${spk}</div>
+          <div style="font-size:0.95rem; font-weight:700; color:#fff;">${title}</div>
+        `;
+        div.onclick = () => {
+          currentIndex = idx;
+          updateSlideUI();
+          toggleOverview();
+        };
+        grid.appendChild(div);
+      });
+    }
+
+    function toggleOverview() {
+      const modal = document.getElementById('overviewModal');
+      if (!modal.classList.contains('open')) {
+        buildOverview();
+        modal.classList.add('open');
+      } else {
+        modal.classList.remove('open');
+      }
+    }
+
+    // Interactive Simulator 1: CouchDB Append-Only & Compaction (Slide 4)
+    function simAppendCouchDB() {
+      appendRevisionCount++;
+      const hashes = ['9f2', 'e18', '7b4', '3d9', 'a05'];
+      const h = hashes[appendRevisionCount % hashes.length];
+      const strip = document.getElementById('couchdbDiskStrip');
+      strip.innerHTML = `
+        <div class="flow-node stale-block">[Doc A: rev 1-a8f]</div>
+        <span class="flow-arrow">➔</span>
+        <div class="flow-node stale-block">[Doc A: rev ${appendRevisionCount - 1}-c41 (Órfão)]</div>
+        <span class="flow-arrow">➔</span>
+        <div class="flow-node highlight-orange">[Novo Bloco: Doc A rev ${appendRevisionCount}-${h}]</div>
+        <span class="flow-arrow">➔</span>
+        <div class="flow-node highlight-orange">[Nós B+Tree v${appendRevisionCount}]</div>
+        <span class="flow-arrow">➔</span>
+        <div class="flow-node highlight-green pulse-active"><strong>[Novo Tail Header v${appendRevisionCount} (EOF)]</strong></div>
+      `;
+    }
+
+    function simCompactCouchDB() {
+      const strip = document.getElementById('couchdbDiskStrip');
+      strip.innerHTML = `
+        <div class="flow-node highlight-green">✨ <strong>[Arquivo .compact Limpo]</strong></div>
+        <span class="flow-arrow">➔</span>
+        <div class="flow-node highlight-orange">[Apenas Revisão Ativa: Doc A rev ${appendRevisionCount}]</div>
+        <span class="flow-arrow">➔</span>
+        <div class="flow-node highlight-green pulse-active"><strong>[Tail Header v${appendRevisionCount} (Espaço Recuperado!)]</strong></div>
+      `;
+    }
+
+    // Interactive Simulator 2: Couchbase CRC32 -> vBucket (Slide 7)
+    function simVbucket(key, vb, activeNode, replicaNode) {
+      document.getElementById('vbKeyNode').innerHTML = `SDK: <code class="inline">CRC32("${key}") % 1024 = vB #${vb}</code>`;
+      document.getElementById('vbActiveNode').innerHTML = `<strong>RAM ${activeNode} (vB #${vb} Ativo)</strong><br/>Ack: <strong>0.28 ms</strong>`;
+      document.getElementById('vbReplicaNode').innerHTML = `RAM ${replicaNode} (vB #${vb} Réplica) + NVMe`;
+    }
+
+    // Interactive Terminal Output Toggles (Slides 17 & 18)
+    function toggleSimOutput(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('visible');
+    }
+
     function checkQuiz(element, isCorrect, expId) {
       const parent = element.parentElement;
       Array.from(parent.children).forEach(opt => {
@@ -1691,6 +2330,10 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('overviewModal').classList.remove('open');
+        return;
+      }
       if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         nextSlide();
@@ -1701,6 +2344,10 @@ def create_ou_update_documento(doc_id: str, payload: dict) -> str:
         toggleNotes();
       } else if (e.key.toLowerCase() === 'f') {
         toggleFullScreen();
+      } else if (e.key.toLowerCase() === 'g') {
+        toggleOverview();
+      } else if (e.key.toLowerCase() === 'l') {
+        toggleLaser();
       } else if (e.key === '+' || e.key === '=') {
         adjustZoom(0.08);
       } else if (e.key === '-' || e.key === '_') {

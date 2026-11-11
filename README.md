@@ -1,25 +1,78 @@
 # 📊 Seminário NoSQL: Apache CouchDB vs. Couchbase Server
 
-Material acadêmico e prático completo sobre **Apache CouchDB** e **Couchbase Server**, desenvolvido sob a ótica de **Arquitetura de Dados e Sistemas Distribuídos**.
+Apresentação acadêmica interativa e laboratório prático reproduzível sobre **Apache CouchDB** e **Couchbase Server**, desenvolvidos sob a ótica de **Arquitetura de Dados, Sistemas Distribuídos e Performance em Sala de Aula (TV 50")**.
+
+🔗 **Acesso Online (GitHub Pages — Custo Zero):** `https://phlopesvc07.github.io/ApresentacaoBD/`
 
 ---
 
-## 📁 Estrutura do Repositório
+## 🏗️ Arquitetura Setorizada do Projeto
 
-| Arquivo / Pasta | Descrição |
+O código foi refatorado e modularizado em camadas independentes (HTML semântico, CSS desacoplado por responsabilidade, módulos JavaScript ES6+ e scripts de laboratório) para máxima manutenibilidade e cache eficiente em CDNs gratuitas:
+
+```text
+ApresentacaoBD/
+├── index.html                        # Entrypoint principal da Apresentação Web (GitHub Pages)
+├── apresentacao.html                 # Espelho local da apresentação interativa
+├── .nojekyll                         # Bypass de build Jekyll para deploy instantâneo no GitHub Pages
+├── Apresentacao_CouchDB_vs_Couchbase.pptx  # Versão nativa PowerPoint (16:9) com Notas do Orador
+├── assets/
+│   ├── css/
+│   │   ├── variables.css             # Design Tokens, paleta de alto contraste e escala fluida TV 50"
+│   │   ├── layout.css                # Stage, Cyber-Grid, CSS Containment e aceleração de hardware
+│   │   └── components.css            # Cartões, simuladores, janelas de terminal, tabelas e Quiz
+│   └── js/
+│       ├── app.js                    # Engine de navegação, Teleprompter, Timer, Zoom e Laser (rAF)
+│       └── simulators.js             # Simuladores interativos (Append-Only, Compaction, vBuckets e Quiz)
+├── workshop/
+│   ├── docker-compose.yml            # Orquestração dos containers Apache CouchDB 3.3 + Couchbase 7.6
+│   ├── comandos_workshop.sh          # Roteiro de comandos prontos (cURL, Mango, _changes e SQL++)
+│   ├── crud_couchdb_demo.py          # Script Python 3 demonstrando CRUD real + tratamento MVCC (HTTP 409)
+│   └── gerar_pptx.py                 # Gerador automatizado do arquivo PowerPoint (.pptx)
+└── README.md                         # Documentação técnica e guia operacional do seminário
+```
+
+---
+
+## ⚡ Otimizações de Desempenho e Hospedagem Custo Zero
+
+1. **CSS Containment (`contain: content` / `contain: strict`):**
+   - Os 19 slides inativos ficam isolados da árvore de *layout/paint* do navegador. O motor gráfico renderiza apenas o slide visível no momento, garantindo **60 FPS constantes** mesmo em computadores de laboratório universitário com placa de vídeo integrada conectados a uma **TV de 50 polegadas**.
+2. **Substituição de Filtros Pesados por Gradientes Pré-Calculados na GPU:**
+   - Removemos filtros contínuos de `blur()` e `backdrop-filter` repetitivos nos cartões em favor de gradientes radiais compostos na GPU (`transform: translate3d(0,0,0)` e `will-change: transform`).
+3. **Apontador Laser com `requestAnimationFrame` (Zero Layout Thrashing):**
+   - O modo Laser (`Tecla L`) atualiza a posição do feixe sincronizado com a taxa de atualização da TV usando `translate3d` e listener `{ passive: true }`.
+4. **Persistência de Sessão (`sessionStorage`) e Carregamento `defer`:**
+   - Scripts carregados com atributo `defer` sem bloquear a primeira renderização (*First Contentful Paint < 50ms*). Se a página for recarregada acidentalmente durante a aula, o navegador restaura automaticamente o slide exato e a escala de zoom escolhida para a TV.
+5. **Pronto para Hospedagem Estática 100% Gratuita:**
+   - Compatível nativamente com **GitHub Pages** (arquivo `.nojekyll` incluso), **Cloudflare Pages**, **Vercel** ou **Netlify**, além de funcionar **100% offline** abrindo o `index.html` localmente.
+
+---
+
+## 🎮 Controles de Palco, Simuladores e Atalhos (TV de 50 Polegadas)
+
+| Tecla / Botão | Função na Apresentação |
 | :--- | :--- |
-| **[`apresentacao.html`](./apresentacao.html)** / **[`index.html`](./index.html)** | **Apresentação Web Interativa (20 Slides)** em Dark Mode, com **Teleprompter / Roteiro de Fala integrado (Tecla `R`)**, cronômetro de 45 minutos e Quiz interativo no final. |
-| **[`Apresentacao_CouchDB_vs_Couchbase.pptx`](./Apresentacao_CouchDB_vs_Couchbase.pptx)** | **Apresentação Nativa em PowerPoint (16:9)** contendo todos os slides e o roteiro de fala de cada integrante salvo nas *Notas do Apresentador*. |
-| **[`workshop/docker-compose.yml`](./workshop/docker-compose.yml)** | Ambiente Docker Compose subindo `apache/couchdb:3.3` (porta `5984`) e `couchbase:community-7.6.0` (portas `8091–8096` e `11210`). |
-| **[`workshop/comandos_workshop.sh`](./workshop/comandos_workshop.sh)** | Roteiro de comandos prontos (`cURL`, `couchbase-cli` e `N1QL/SQL++`) para execução rápida na demonstração ao vivo. |
-| **[`workshop/crud_couchdb_demo.py`](./workshop/crud_couchdb_demo.py)** | Script em Python 3 demonstrando o fluxo CRUD real no CouchDB, controle de concorrência otimista MVCC (`_rev` / `HTTP 409 Conflict`), Mango Query (`_find`) e deleção via *Tombstone*. |
-| **[`workshop/gerar_pptx.py`](./workshop/gerar_pptx.py)** | Script Python (`python-pptx`) utilizado para gerar o arquivo `.pptx`. |
+| **`→` / `Espaço`** | Avança para o próximo slide |
+| **`←`** | Retorna ao slide anterior |
+| **`+` / `-` / `0`** | **Zoom Fluido TV 50":** Aumenta, diminui ou reseta (`112%`) o tamanho global das fontes na hora |
+| **`R`** | **Teleprompter Flutuante:** Abre/fecha a gaveta lateral com o **Roteiro de Fala** sem encolher o slide na TV |
+| **`G`** | **Mapa Geral de Slides:** Exibe grade com todos os 20 slides e o integrante responsável por cada um |
+| **`L`** | **Apontador Laser Virtual:** Transforma o cursor em um ponto de laser vermelho brilhante na TV |
+| **`F`** | Alterna o modo **Tela Cheia (Fullscreen)** |
+| **`⏱ 00:00`** | Clique no relógio do topo para iniciar/pausar o cronômetro geral da apresentação |
+
+### 🧪 Simuladores Arquiteturais Embutidos nos Slides:
+- **Slide 4 (Simulador Append-Only & Compaction do CouchDB):** Botões interativos que adicionam novos blocos ao final do arquivo `.couch`, marcam blocos antigos como órfãos e executam o *Compaction* ao vivo.
+- **Slide 7 (Simulador CRC32 $\rightarrow$ vBucket no Couchbase):** Calcula o hash da chave, identifica o `vBucket #` (de `0` a `1023`) e demonstra o salto único (*Single-Hop TCP*) direto para a RAM do nó ativo.
+- **Slides 17 e 18 (Terminais com Simulação de Output):** Botões que exibem instantaneamente o retorno do `HTTP 409 Conflict`, o stream contínuo `_changes` e o plano de execução `N1QL (SQL++)` na tela.
+- **Slides 19 e 20 (Quiz Universitário Interativo):** Clique em qualquer alternativa (`A` a `E`) para validar a resposta e exibir o gabarito comentado para a turma.
 
 ---
 
 ## 👥 Distribuição da Equipe (7 Integrantes — 35 a 45 min)
 
-| Integrante | Slides | Tema Principal | Tempo Estimado |
+| Integrante | Slides | Foco Técnico | Tempo Estimado |
 | :--- | :--- | :--- | :--- |
 | **Integrante 1** | Slides 1, 2 e 3 | Contextualização NoSQL, História (CouchOne + Membase) e Bifurcação Filosófica | ~6 min |
 | **Integrante 2** | Slides 4, 5 e 6 | Arquitetura Interna do **Apache CouchDB** (Append-Only B+Tree, MVCC `_rev`, Views/Mango e `_changes`) | ~6 min |
@@ -31,17 +84,17 @@ Material acadêmico e prático completo sobre **Apache CouchDB** e **Couchbase S
 
 ---
 
-## 🚀 Como Executar o Workshop Prático
+## 🚀 Como Executar o Workshop Prático Localmente
 
-### 1. Subir os Containers (CouchDB + Couchbase)
+### 1. Subir os Containers (CouchDB 3.3 + Couchbase 7.6)
 ```bash
 cd workshop
 docker compose up -d
 ```
 
-### 2. Inicializar o CouchDB e o Couchbase via CLI
+### 2. Inicializar os Serviços via CLI
 ```bash
-# Inicializar single-node no Apache CouchDB 3.3
+# Inicializar tabelas de sistema do Apache CouchDB 3.3
 curl -X POST http://admin:admin123@localhost:5984/_cluster_setup \
   -H "Content-Type: application/json" \
   -d '{"action": "enable_single_node", "username": "admin", "password": "admin123", "bind_address": "0.0.0.0", "port": 5984, "singlenode": true}'
@@ -68,7 +121,7 @@ python workshop/crud_couchdb_demo.py
 
 ---
 
-## ⚖️ Resumo da Matriz Comparativa
+## ⚖️ Síntese da Matriz Comparativa
 
 | Dimensão Técnica | Apache CouchDB | Couchbase Server |
 | :--- | :--- | :--- |

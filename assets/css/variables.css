@@ -1,0 +1,50 @@
+/* ==========================================================================
+   1. DESIGN TOKENS & TV 50" FLUID TYPOGRAPHY SCALE (variables.css)
+   ========================================================================== */
+:root {
+  --tv-scale: 1.12;
+  --bg-deep: #04070f;
+  --bg-card: rgba(15, 23, 42, 0.88);
+  --bg-card-solid: #0f172a;
+  --bg-card-alt: rgba(30, 41, 59, 0.85);
+  --text-main: #ffffff;
+  --text-muted: #cbd5e1;
+  --couchdb-orange: #ff6b2b;
+  --couchdb-glow: rgba(255, 107, 43, 0.28);
+  --couchbase-blue: #00d2ff;
+  --couchbase-glow: rgba(0, 210, 255, 0.28);
+  --accent-emerald: #10b981;
+  --accent-amber: #fbbf24;
+  --accent-purple: #c084fc;
+  --accent-rose: #f43f5e;
+  --border-glass: rgba(148, 163, 184, 0.26);
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+html {
+  /* Escala fluida calibrada para TV de 50" (5 a 10m de distância) */
+  font-size: calc(clamp(16.5px, 1.22vw, 25px) * var(--tv-scale));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  position: relative;
+}

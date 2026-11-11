@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seminário NoSQL: Apache CouchDB vs. Couchbase</title>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: #131b2e;
+      --bg-card-alt: #19233c;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --couchdb-color: #e42528;
+      --couchdb-soft: rgba(228, 37, 40, 0.16);
+      --couchbase-color: #ea2328;
+      --accent-blue: #38bdf8;
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-purple: #a855f7;
+      --border-color: rgba(148, 163, 184, 0.18);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Bar */
+    .topbar {
+      height: 54px;
+      background: rgba(15, 23, 42, 0.92);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #ef4444, #3b82f6);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .speaker-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+    }
+
+    .speaker-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    .controls-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-ui {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-ui:hover {
+      background: var(--bg-card-alt);
+      border-color: var(--accent-blue);
+    }
+
+    .btn-ui.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .timer-box {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      background: #090d16;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      color: var(--accent-amber);
+      cursor: pointer;
+    }
+
+    /* Main Workspace */
+    .main-stage {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide-viewport {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 48px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1320px;
+      min-height: 82%;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn 0.28s ease-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Typography & Layout */
+    .slide-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .slide-title {
+      font-size: 2.35rem;
+      font-weight: 800;
+      line-height: 1.18;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 26px;
+      font-weight: 400;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card.couchdb-border {
+      border-top: 4px solid #f97316;
+    }
+
+    .card.couchbase-border {
+      border-top: 4px solid var(--accent-blue);
+    }
+
+    .card.emerald-border {
+      border-top: 4px solid var(--accent-emerald);
+    }
+
+    .card.purple-border {
+      border-top: 4px solid var(--accent-purple);
+    }
+
+    .card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+
+    ul.tech-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    ul.tech-list li {
+      position: relative;
+      padding-left: 22px;
+      font-size: 1.04rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+    }
+
+    ul.tech-list li::before {
+      content: "▹";
+      position: absolute;
+      left: 0;
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    ul.tech-list li strong {
+      color: #fff;
+    }
+
+    code.inline {
+      font-family: var(--font-mono);
+      background: rgba(56, 189, 248, 0.14);
+      color: #7dd3fc;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+
+    pre.code-block {
+      background: #070a12;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      overflow-x: auto;
+      user-select: text;
+    }
+
+    .diagram-box {
+      background: #090d18;
+      border: 1px dashed rgba(148, 163, 184, 0.3);
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .flow-node {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .flow-node.highlight-orange {
+      border-color: #f97316;
+      background: rgba(249, 115, 22, 0.15);
+      color: #fed7aa;
+    }
+
+    .flow-node.highlight-blue {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.15);
+      color: #bae6fd;
+    }
+
+    .flow-node.highlight-green {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.15);
+      color: #a7f3d0;
+    }
+
+    .flow-arrow {
+      color: var(--text-muted);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* Comparison Table */
+    table.comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    table.comp-table th,
+    table.comp-table td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    table.comp-table th {
+      background: #0f172a;
+      font-size: 1.05rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    table.comp-table th:nth-child(2) { color: #fb923c; }
+    table.comp-table th:nth-child(3) { color: var(--accent-blue); }
+
+    table.comp-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Teleprompter / Speaker Notes Drawer */
+    .notes-panel {
+      width: 400px;
+      background: #0f1626;
+      border-left: 1px solid var(--border-color);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      transition: all 0.25s ease;
+    }
+
+    .notes-panel.hidden {
+      display: none;
+    }
+
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .notes-speaker-badge {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .notes-time {
+      font-size: 0.82rem;
+      color: var(--accent-amber);
+      font-weight: 600;
+    }
+
+    .notes-script {
+      font-size: 1.05rem;
+      line-height: 1.68;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 16px;
+      border-radius: 10px;
+      border-left: 3px solid var(--accent-amber);
+      user-select: text;
+    }
+
+    /* Quiz Options */
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .quiz-option {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 13px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.96rem;
+      line-height: 1.4;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-card-alt);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--accent-emerald);
+      color: #ecfdf5;
+    }
+
+    .quiz-option.wrong {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+
+    .quiz-explanation {
+      display: none;
+      margin-top: 14px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: #d1fae5;
+    }
+
+    .quiz-explanation.visible {
+      display: block;
+    }
+
+    /* Bottom Footer / Progress */
+    .bottombar {
+      height: 48px;
+      background: #090d16;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: relative;
+      z-index: 50;
+    }
+
+    .progress-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #f97316, #38bdf8, #10b981);
+      transition: width 0.25s ease;
+    }
+
+    .nav-btns {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Print Mode for PDF Export */
+    @media print {
+      body {
+        overflow: visible;
+        height: auto;
+        background: #0b0f19 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .topbar, .bottombar, .notes-panel {
+        display: none !important;
+      }
+      .slide-viewport {
+        padding: 0;
+        display: block;
+      }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        min-height: 100vh;
+        padding: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-badge">Seminário NoSQL</span>
+      <span>Apache CouchDB vs. Couchbase Server</span>
+    </div>
+
+    <div class="speaker-pill">
+      <span class="speaker-dot"></span>
+      <span id="currentSpeakerLabel">Integrante 1 • Tempo estimado: 2 min</span>
+    </div>
+
+    <div class="controls-top">
+      <div class="timer-box" id="timerDisplay" title="Clique para Iniciar/Pausar o cronômetro">⏱ 00:00</div>
+      <button class="btn-ui active" id="btnToggleNotes" onclick="toggleNotes()">🎙 Roteiro de Fala (R)</button>
+      <button class="btn-ui" onclick="toggleFullScreen()">⛶ Tela Cheia (F)</button>
+      <button class="btn-ui" onclick="window.print()">🖨 Exportar PDF</button>
+    </div>
+  </header>
+
+  <!-- MAIN PRESENTATION STAGE -->
+  <div class="main-stage">
+    <main class="slide-viewport" id="slideViewport">
+
+      <!-- =========================================================
+           SLIDE 1: CAPA E CONTEXTUALIZAÇÃO (INTEGRANTE 1)
+           ========================================================= -->
+      <section class="slide active"
+        data-speaker="Integrante 1"
+        data-time="2 min (Acumulado: 02:00)"
+        data-script="Bom dia/Boa tarde a todos. Hoje nossa equipe vai apresentar uma análise arquitetural profunda sobre dois bancos de dados NoSQL orientados a documentos que frequentemente causam confusão pelo nome, mas que resolveram problemas completamente distintos na engenharia de software: o Apache CouchDB e o Couchbase.<br><br>Quando olhamos para as limitações dos bancos relacionais tradicionais em sistemas distribuídos de larga escala, esbarramos em dois gargalos clássicos: a impedância objeto-relacional e o custo de manter transações distribuídas com bloqueio pessimista. Tanto o CouchDB quanto o Couchbase adotam o JSON como unidade básica de armazenamento, mas como veremos nos próximos 40 minutos, enquanto um nasceu para dominar a web descentralizada e redes instáveis, o outro foi projetado para entregar latência sub-milissegundo em clusters massivos orientados a memória.">
+        <div class="slide-meta">Módulo 1 • Origem e Fundamentos Arquiteturais</div>
+        <h1 class="slide-title" style="font-size: 3rem;">Apache CouchDB vs. Couchbase</h1>
+        <p class="slide-subtitle" style="font-size: 1.35rem;">Arquiteturas Documentais Distribuídas: Da Sincronização Offline-First à Performance Sub-Milissegundo em Memória</p>
+
+        <div class="grid-3">
+          <div class="card couchdb-border">
+            <h3>🌐 A Crise do RDBMS Clássico</h3>
+            <ul class="tech-list">
+              <li>Limites da escalabilidade vertical (Scale-Up) na explosão da Web 2.0 e Mobile.</li>
+              <li><strong>Impedância Objeto-Relacional:</strong> Custo de fragmentar agregados em dezenas de tabelas normalizadas.</li>
+              <li>Bloqueios pessimistas (2PL) inviáveis em topologias geograficamente distribuídas.</li>
+            </ul>
+          </div>
+
+          <div class="card couchbase-border">
+            <h3>📄 O Paradigma Documental JSON</h3>
+            <ul class="tech-list">
+              <li>Documentos auto-contidos em <strong>JSON</strong> (Arrays e Objetos aninhados).</li>
+              <li>Localidade de dados: leitura de uma entidade inteira em uma única operação de I/O.</li>
+              <li>Flexibilidade de schema (Schema-on-read) sem comandos bloqueantes de <code class="inline">ALTER TABLE</code>.</li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>👥 Equipe do Seminário (7 Integrantes)</h3>
+            <ul class="tech-list">
+              <li><strong>Int. 1:</strong> Genealogia Histórica & Bifurcação</li>
+              <li><strong>Int. 2:</strong> Arquitetura Interna Apache CouchDB</li>
+              <li><strong>Int. 3:</strong> Arquitetura Interna Couchbase Server</li>
+              <li><strong>Int. 4 & 5:</strong> Casos Reais, Mercado & Trade-offs</li>
+              <li><strong>Int. 6:</strong> Matriz Comparativa (CAP / Latência)</li>
+              <li><strong>Int. 7:</strong> Workshop Prático (Docker + Live Demo)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 2: A GENEALOGIA HISTÓRICA E A FUSÃO DE 2011 (INTEGRANTE 1)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 1"
+        data-time="2 min (Acumulado: 04:00)"
+        data-script="Para entender por que esses dois bancos têm 'Couch' no nome, precisamos voltar a 2005. Damien Katz, que trabalhou no IBM Lotus Notes, criou o CouchDB inspirado em bancos de documentos replicados. O próprio nome COUCH é um acrônimo para Cluster Of Unreliable Commodity Hardware — ou seja, hardware comum e não confiável.<br><br>Em paralelo, a equipe por trás do famoso sistema de cache distribuído Memcached criou o Membase, que adicionava persistência em disco e replicação ao Memcached. Em 2011, a empresa comercial por trás do CouchDB, chamada CouchOne, fundiu-se com a Membase, formando a Couchbase Inc.<br><br>O ponto crucial para qualquer arquiteto de dados é entender o que aconteceu depois: o produto Couchbase Server não é um CouchDB com outro nome. A engenharia do Couchbase fundiu o motor de chave-valor em memória de altíssima velocidade do Membase com a capacidade de indexar JSON. Enquanto isso, a comunidade aberta manteve o Apache CouchDB evoluindo de forma independente sob a Apache Foundation.">
+        <div class="slide-meta">Slide 2 • Genealogia Histórica</div>
+        <h2 class="slide-title">Origem Histórica: A Fusão de 2011 e a Grande Divergência</h2>
+        <p class="slide-subtitle">Por que dois bancos com nomes semelhantes possuem motores internos 100% diferentes?</p>
+
+        <div class="diagram-box">
+          <div class="flow-row">
+            <div class="flow-node highlight-orange">
+              <strong>2005: Apache CouchDB</strong><br/>
+              Damien Katz (ex-IBM Lotus Notes)<br/>
+              <em>"Cluster Of Unreliable Commodity Hardware"</em>
+            </div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-orange">
+              <strong>2009: CouchOne Inc.</strong><br/>
+              Comercialização e suporte ao CouchDB
+            </div>
+            <span class="flow-arrow">↘</span>
+            <div class="flow-node highlight-green" style="padding: 16px 24px;">
+              <strong>Fevereiro de 2011: FUSÃO</strong><br/>
+              CouchOne + Membase = <strong>Couchbase Inc.</strong>
+            </div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-node highlight-blue">
+              <strong>2003: Memcached</strong><br/>
+              Cache distribuído em RAM (Danga)
+            </div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-blue">
+              <strong>2010: Membase (NorthScale)</strong><br/>
+              Memcached + Persistência + Replicação
+            </div>
+            <span class="flow-arrow">↗</span>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 20px;">
+          <div class="card couchdb-border">
+            <h3>🪶 O Caminho do Apache CouchDB (ASF)</h3>
+            <ul class="tech-list">
+              <li>Tornou-se projeto Top-Level da <strong>Apache Software Foundation</strong> em 2008.</li>
+              <li>Manteve seu núcleo em <strong>Erlang/OTP</strong> focado em robustez, web nativa e sincronização Master-Master.</li>
+              <li>Evoluiu com doações do <strong>IBM Cloudant</strong> (Clusterização BigCouch no CouchDB 2.0 e Mango Queries).</li>
+            </ul>
+          </div>
+          <div class="card couchbase-border">
+            <h3>⚡ O Caminho do Couchbase Server</h3>
+            <ul class="tech-list">
+              <li>Uniu o <strong>motor KV em memória do Membase</strong> (C/C++) com suporte a documentos JSON.</li>
+              <li>Substituiu a arquitetura interna do CouchDB por particionamento via <strong>vBuckets</strong>, protocolo DCP e <strong>N1QL (SQL for JSON)</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 3: BIFURCAÇÃO FILOSÓFICA FUNDAMENTAL (INTEGRANTE 1)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 1"
+        data-time="2 min (Acumulado: 06:00)"
+        data-script="Essa separação gerou duas filosofias de engenharia opostas.<br><br>De um lado, o Apache CouchDB fala HTTP de forma nativa. Você conversa com o banco diretamente usando cURL ou o navegador. Ele não usa bloqueios (locks); em vez disso, obriga a aplicação a lidar com revisões explícitas através de Multi-Version Concurrency Control (MVCC), porque seu objetivo maior é permitir que dois nós desconectados aceitem escritas e sincronizem depois sem corromper dados.<br><br>Do outro lado, o Couchbase opera sobre um protocolo binário enxuto via TCP. Ele coloca uma camada de memória RAM gerenciada na frente do disco. Toda escrita vai para a RAM e retorna sucesso em microssegundos, sendo persistida de forma assíncrona em background. Agora passo a palavra para o Integrante 2, que vai dissecar o motor interno do Apache CouchDB.">
+        <div class="slide-meta">Slide 3 • Filosofia de Engenharia</div>
+        <h2 class="slide-title">Bifurcação Filosófica: Web Nativa vs. Performance Memory-First</h2>
+        <p class="slide-subtitle">Decisões fundamentais de protocolo, concorrência e hierarquia de memória</p>
+
+        <div class="grid-2">
+          <div class="card couchdb-border">
+            <h3>🟧 Apache CouchDB: Filosofia "Sync & Web-First"</h3>
+            <ul class="tech-list">
+              <li><strong>Protocolo Primário:</strong> HTTP/REST nativo (porta <code class="inline">5984</code>). Qualquer cliente HTTP ou browser conversa diretamente com o banco.</li>
+              <li><strong>Caminho de Escrita:</strong> <em>Disk-First (Append-Only)</em>. Toda mutação vai para estruturas imutáveis em disco.</li>
+              <li><strong>Concorrência Otimista Explícita:</strong> Árvore MVCC no documento via campo <code class="inline">_rev</code>. Pensado para conflitos em desconexão.</li>
+              <li><strong>Prioridade Arquitetural:</strong> Resiliência em redes não confiáveis, sincronização <em>Offline-First</em> e replicação Multi-Primary.</li>
+            </ul>
+          </div>
+
+          <div class="card couchbase-border">
+            <h3>🟦 Couchbase: Filosofia "Memory-First & Scale"</h3>
+            <ul class="tech-list">
+              <li><strong>Protocolo Primário:</strong> Binário proprietário sobre TCP (porta <code class="inline">11210</code>) com SDKs inteligentes cientes da topologia.</li>
+              <li><strong>Caminho de Escrita:</strong> <em>Memory-First</em>. Mutações gravadas imediatamente no cache gerenciado em RAM (sub-milissegundo).</li>
+              <li><strong>Consistência Forte por Padrão:</strong> Um único vBucket ativo por chave + controle CAS (Compare-And-Swap) e transações ACID.</li>
+              <li><strong>Prioridade Arquitetural:</strong> Altíssima vazão (milhões de ops/seg), baixa latência, elasticidade horizontal e consultas <strong>SQL++ (N1QL)</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 4: ARQUITETURA COUCHDB — APPEND-ONLY & B+TREE (INTEGRANTE 2)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 2"
+        data-time="2 min (Acumulado: 08:00)"
+        data-script="Obrigado. Vamos mergulhar na engenharia interna do Apache CouchDB. Primeiro, ele é escrito em Erlang, a linguagem criada pela Ericsson para comutadores telefônicos, famosa por concorrência massiva e isolamento de falhas.<br><br>O coração do armazenamento do CouchDB é sua estrutura Append-Only B+Tree. Diferente de bancos que sobrescrevem blocos de disco no lugar, o CouchDB jamais altera um byte já gravado. Quando você atualiza um documento ou atualiza os nós da árvore B+ de índices, ele grava os novos blocos de dados e o novo cabeçalho do banco sempre no final do arquivo.<br><br>Qual é a vantagem arquitetural disso? Primeiro, leituras nunca bloqueiam escritas e escritas nunca bloqueiam leituras. Segundo, o banco é virtualmente imune à corrupção por queda brusca de energia: quando o processo sobe novamente, ele apenas varre o final do arquivo até achar o último Tail Header íntegro. O trade-off é o consumo de espaço em disco, que exige um processo de Compactação (Compaction) para reescrever o arquivo mantendo apenas a revisão mais recente.">
+        <div class="slide-meta">Slide 4 • Arquitetura Interna Apache CouchDB</div>
+        <h2 class="slide-title">CouchDB: Motor Append-Only e Indexação B+Tree</h2>
+        <p class="slide-subtitle">Imutabilidade em disco, concorrência lock-free em Erlang e imunidade a corrupção</p>
+
+        <div class="grid-2">
+          <div class="card couchdb-border">
+            <h3>⚙️ Núcleo Erlang/OTP & Tail-Append</h3>
+            <ul class="tech-list">
+              <li>Construído em <strong>Erlang/OTP</strong>: processos leves (Actor Model), troca de mensagens assíncrona e tolerância a falhas (<em>Let it crash</em>).</li>
+              <li><strong>Zero In-Place Updates:</strong> Blocos de disco jamais são sobrescritos. Atualizações e deleções geram novos blocos no fim do arquivo (<code class="inline">.couch</code>).</li>
+              <li><strong>Tail Header:</strong> O cabeçalho contendo o ponteiro para a raiz da B+Tree é gravado no <strong>final</strong> do arquivo após cada commit (`fsync`).</li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>🛡️ Benefícios e o Papel do Compaction</h3>
+            <ul class="tech-list">
+              <li><strong>Leituras Lock-Free:</strong> Leitores percorrem snapshots imutáveis da árvore B+ sem bloquear escritores concorrentes.</li>
+              <li><strong>Crash-Only Design:</strong> Em queda de energia, não há <em>Undo/Redo Recovery Log</em> lento; basta buscar o último Tail Header válido de trás para frente.</li>
+              <li><strong>Compaction (Compactação):</strong> Processo em background que copia apenas as revisões ativas para um novo arquivo <code class="inline">.compact</code> e libera espaço morto.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <div class="flow-row">
+            <div class="flow-node">[Bloco Antigo: Doc A v1]</div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node">[Header Antigo (Órfão)]</div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-orange">[Novo Bloco: Doc A v2]</div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-orange">[Novos Nós B+Tree]</div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-green"><strong>[Novo Tail Header (EOF)]</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 5: COUCHDB — MVCC, ÁRVORE DE REVISÕES (_REV) E CONFLITOS (INTEGRANTE 2)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 2"
+        data-time="2 min (Acumulado: 10:00)"
+        data-script="Como o CouchDB garante consistência ACID no nível do documento sem usar locks pessimistas? Através de MVCC (Multi-Version Concurrency Control) exposto diretamente na API HTTP via o campo _rev.<br><br>Cada documento no CouchDB não é apenas um registro, mas sim uma árvore de revisões parecida com um repositório Git. Sempre que você cria um documento, o CouchDB gera um _rev começando com 1- seguido de um hash determinístico do conteúdo. Para atualizar esse documento via PUT, você é obrigado a informar esse _rev. Se outro cliente atualizou o documento um milissegundo antes de você, o CouchDB rejeita sua escrita imediatamente com um erro HTTP 409 Conflict.<br><br>Já em cenários de replicação entre dois servidores desconectados, ambos podem aceitar atualizações para o mesmo documento. Quando a rede volta e eles sincronizam, o CouchDB guarda ambas as ramificações na árvore do documento e aplica um algoritmo determinístico baseado no hash das revisões para eleger exatamente o mesmo vencedor em todos os nós do cluster, sinalizando o conflito para que a aplicação faça o merge de negócio.">
+        <div class="slide-meta">Slide 5 • Controle de Concorrência no CouchDB</div>
+        <h2 class="slide-title">CouchDB: MVCC Explícito (<code class="inline">_rev</code>) e Árvore de Revisões</h2>
+        <p class="slide-subtitle">Como cada documento funciona como um mini-repositório Git para suportar conflitos distribuídos</p>
+
+        <div class="grid-2">
+          <div class="card couchdb-border">
+            <h3>🔐 Ciclo Optimistic Locking (<code class="inline">_id</code> + <code class="inline">_rev</code>)</h3>
+            <ul class="tech-list">
+              <li>Formato do <code class="inline">_rev</code>: <code class="inline">&lt;geração&gt;-&lt;hash_md5_determinístico&gt;</code> (ex: <code class="inline">2-7051cbe5c...</code>).</li>
+              <li><strong>Regra de Atualização/Deleção:</strong> O cliente deve enviar o <code class="inline">_rev</code> atual no <code class="inline">PUT</code> ou <code class="inline">DELETE</code>.</li>
+              <li>Se o <code class="inline">_rev</code> enviado divergir da folha atual no servidor: rejeição imediata com <strong><code class="inline">HTTP 409 Conflict</code></strong>.</li>
+              <li>Deleções geram uma revisão <strong>Tombstone</strong> (<code class="inline">"_deleted": true</code>) para propagar a exclusão na replicação.</li>
+            </ul>
+          </div>
+
+          <div class="card purple-border">
+            <h3>🌿 Conflitos em Replicação Master-Master</h3>
+            <ul class="tech-list">
+              <li>Quando o Nó A e o Nó B editam o mesmo documento offline, a árvore de revisões bifurca (<code class="inline">2-a...</code> e <code class="inline">2-b...</code>).</li>
+              <li><strong>Eleição Determinística de Vencedor:</strong> Todos os nós escolhem a mesma revisão ativa comparando o comprimento da cadeia e a ordem ASCII do hash (sem depender de relógio físico/NTP!).</li>
+              <li>A revisão perdedora fica preservada em <code class="inline">_conflicts</code> até a aplicação resolver e podar o ramo.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <div class="flow-row">
+            <div class="flow-node"><strong>Rev Inicial:</strong> <code class="inline">1-967a...</code></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-green"><strong>Ramo Nó A (Vencedor Determinístico):</strong> <code class="inline">2-f89c...</code></div>
+            <span class="flow-arrow">+</span>
+            <div class="flow-node highlight-orange"><strong>Ramo Nó B (Preservado em <code class="inline">_conflicts</code>):</strong> <code class="inline">2-31a0...</code></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 6: COUCHDB — MAPREDUCE, MANGO E _CHANGES FEED (INTEGRANTE 2)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 2"
+        data-time="2 min (Acumulado: 12:00)"
+        data-script="Para consultar dados além da chave primária _id, o CouchDB historicamente utiliza Design Documents contendo funções MapReduce escritas em JavaScript. A função map inspeciona cada documento e emite chaves e valores que são gravados em uma B-tree separada. O detalhe técnico brilhante aqui é que as funções de reduce são armazenadas diretamente nos nós intermediários da B-tree, permitindo calcular somas ou contagens em tempo logarítmico. A partir da versão 2.0, o CouchDB também ganhou o Mango Query (_find), permitindo buscas declarativas em JSON muito mais simples.<br><br>Por fim, temos a joia da coroa do CouchDB: o endpoint _changes. Como o armazenamento é append-only, o banco mantém um número de sequência incremental para cada alteração. O endpoint _changes expõe esse fluxo em tempo real. É exatamente sobre o _changes que funciona o Protocolo de Replicação do CouchDB: um replicador lê o feed de mudanças da origem, pergunta ao destino quais revisões ele ainda não tem via _revs_diff, e envia apenas os documentos necessários. Agora passo a palavra ao Integrante 3 para contrastar tudo isso com a arquitetura do Couchbase.">
+        <div class="slide-meta">Slide 6 • Consultas e Replicação no CouchDB</div>
+        <h2 class="slide-title">CouchDB: Views MapReduce, Mango (<code class="inline">_find</code>) e <code class="inline">_changes</code></h2>
+        <p class="slide-subtitle">Indexação incremental em B-Tree e o protocolo de replicação baseado em log de eventos</p>
+
+        <div class="grid-3">
+          <div class="card couchdb-border">
+            <h3>🗺️ Views MapReduce (<code class="inline">_design/</code>)</h3>
+            <ul class="tech-list">
+              <li>Funções JavaScript/Erlang salvas em <strong>Design Documents</strong>.</li>
+              <li><code class="inline">emit(key, value)</code> alimenta uma B+Tree secundária incrementalmente.</li>
+              <li>Agregações (<code class="inline">_count</code>, <code class="inline">_sum</code>, <code class="inline">_stats</code>) pré-computadas dentro dos nós internos da B+Tree.</li>
+            </ul>
+          </div>
+
+          <div class="card couchbase-border">
+            <h3>🥭 Mango Queries (<code class="inline">POST /_find</code>)</h3>
+            <ul class="tech-list">
+              <li>Introduzido no CouchDB 2.0+ (doado pelo IBM Cloudant).</li>
+              <li>Sintaxe declarativa em JSON (<code class="inline">$eq</code>, <code class="inline">$gt</code>, <code class="inline">$in</code>, <code class="inline">$regex</code>) sem escrever JS manual.</li>
+              <li>Cria e consome índices B-Tree automaticamente via <code class="inline">POST /db/_index</code>.</li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>📡 O Endpoint <code class="inline">/_changes</code></h3>
+            <ul class="tech-list">
+              <li>Exposição direta do log sequencial (<code class="inline">update_seq</code>) via HTTP (Polling, Long-Polling ou Continuous Stream).</li>
+              <li><strong>Couch Replication Protocol:</strong> Lê <code class="inline">_changes</code> ➔ Calcula delta via <code class="inline">_revs_diff</code> ➔ Transfere em lote via <code class="inline">_bulk_docs</code>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <pre class="code-block" style="margin-top: 16px;">
+// Exemplo de View MapReduce em Design Document vs. Mango Query (_find)
+// 1. Map Function: function(doc) { if (doc.curso) emit(doc.curso, doc.cra); }
+// 2. Mango Query:  POST /universidade_db/_find  ->  { "selector": { "curso": "Ciencia da Computacao", "cra": { "$gt": 8.5 } } }</pre>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 7: ARQUITETURA COUCHBASE — MEMORY-FIRST E VBUCKETS (INTEGRANTE 3)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 3"
+        data-time="2 min (Acumulado: 14:00)"
+        data-script="Obrigado. Entrando agora na engenharia do Couchbase, mudamos completamente de paradigma. Enquanto o CouchDB vai ao disco a cada operação, o Couchbase adota uma arquitetura Memory-First.<br><br>Quando a sua aplicação faz um GET ou UPSERT no Couchbase, a operação acontece diretamente na memória RAM gerenciada pelo Data Service. Assim que o dado é gravado na RAM, o servidor já pode confirmar a escrita em frações de milissegundo, enquanto o protocolo interno DCP (Database Change Protocol) coloca essa mutação em duas filas assíncronas: uma para replicar na RAM de outros nós do cluster e outra para persistir em disco.<br><br>Como o Couchbase distribui dados sem usar nós roteadores ou proxies que adicionam latência? Através dos vBuckets. Todo bucket do Couchbase é dividido de forma fixa em 1024 partições lógicas chamadas vBuckets. O SDK do Couchbase na aplicação aplica um hash CRC32 na chave do documento, faz módulo 1024, descobre exatamente o número do vBucket e consulta um mapa em memória chamado Cluster Map. Com isso, a aplicação abre conexão TCP direto com o servidor exato onde aquele vBucket está ativo, garantindo roteamento em um único salto (single-hop).">
+        <div class="slide-meta">Slide 7 • Arquitetura Interna Couchbase Server</div>
+        <h2 class="slide-title">Couchbase: Arquitetura Memory-First e Particionamento por vBuckets</h2>
+        <p class="slide-subtitle">Cache gerenciado integrado, protocolo DCP e roteamento direto Single-Hop sem proxies</p>
+
+        <div class="grid-2">
+          <div class="card couchbase-border">
+            <h3>🚀 Caminho de Dados Memory-First (KV Engine)</h3>
+            <ul class="tech-list">
+              <li>Leituras e escritas ocorrem diretamente no <strong>Managed Cache em RAM</strong> (resposta em <strong>microssegundos</strong>).</li>
+              <li><strong>DCP (Database Change Protocol):</strong> Fluxo binário ordenado em memória que propaga mutações para:
+                <br/>1. <em>Replication Queue</em> (RAM dos nós réplica).
+                <br/>2. <em>Persistence Queue</em> (Storage engines <strong>Couchstore</strong> ou <strong>Magma</strong>).</li>
+              <li>Suporta durabilidade configurável (<code class="inline">majority</code>, <code class="inline">persistToMajority</code>).</li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>🧩 Particionamento Estático: 1024 vBuckets</h3>
+            <ul class="tech-list">
+              <li>Cada Bucket é dividido em exatamente <strong>1024 vBuckets</strong> (partições lógicas auto-contidas).</li>
+              <li>Cálculo no SDK: <code class="inline">vBucket_ID = CRC32(Document_Key) % 1024</code>.</li>
+              <li>O SDK mantém o <strong>Cluster Map</strong> atualizado: zero nós roteadores intermediários (<em>Single-Hop Routing</em>).</li>
+              <li>Cada vBucket possui <strong>1 Nó Ativo</strong> (CP) e até <strong>3 Réplicas</strong> distribuídas nos demais nós.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <div class="flow-row">
+            <div class="flow-node">App SDK: <code class="inline">CRC32("user_42") % 1024 = vB #712</code></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node highlight-blue"><strong>RAM Nó 2 (vB #712 Ativo)</strong><br/>Ack em &lt; 0.5 ms</div>
+            <span class="flow-arrow">➔ DCP Stream ➔</span>
+            <div class="flow-node highlight-green">RAM Nó 3 (vB #712 Réplica) + Disco NVMe</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 8: COUCHBASE — MULTI-DIMENSIONAL SCALING (MDS) (INTEGRANTE 3)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 3"
+        data-time="2 min (Acumulado: 16:00)"
+        data-script="Outro diferencial arquitetural gigantesco do Couchbase é o Multi-Dimensional Scaling (MDS), sustentado pela arquitetura Multi-Service.<br><br>Na maioria dos bancos NoSQL distribuídos — incluindo o próprio CouchDB em modo cluster, Cassandra ou MongoDB tradicional — cada nó do cluster executa todas as tarefas: guarda dados, atualiza índices e processa consultas pesadas. Isso cria o efeito do 'vizinho barulhento': uma query analítica complexa consome toda a CPU e derruba a latência das leituras por chave primária.<br><br>O Couchbase separa o banco em seis serviços independentes: Data, Index, Query, Full-Text Search, Analytics e Eventing. Com o MDS, nós podemos colocar o Data Service em máquinas com muita memória RAM, o Query Service em máquinas com muitos núcleos de CPU e o Index Service em máquinas com NVMe ultrarrápidos. As mutações fluem do Data Service para o Index Service via memória através do protocolo DCP, sem jamais onerar a CPU que atende as operações de chave-valor.">
+        <div class="slide-meta">Slide 8 • Escalabilidade Multi-Dimensional (MDS)</div>
+        <h2 class="slide-title">Couchbase: Arquitetura Multi-Service e Isolamento de Workloads</h2>
+        <p class="slide-subtitle">Eliminando o efeito "Noisy Neighbor" ao escalar RAM, CPU e I/O de forma independente</p>
+
+        <div class="grid-3">
+          <div class="card couchbase-border">
+            <h3>1. Data Service (KV)</h3>
+            <ul class="tech-list">
+              <li>Operações chave-valor (<code class="inline">GET</code>, <code class="inline">UPSERT</code>, <code class="inline">SUBDOC</code>).</li>
+              <li><strong>Perfil de Hardware:</strong> Alta capacidade de RAM e rede rápida.</li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>2. Index Service (GSI)</h3>
+            <ul class="tech-list">
+              <li>Mantém Índices Secundários Globais (Standard ou <em>Memory-Optimized MOI</em>).</li>
+              <li><strong>Perfil de Hardware:</strong> Alta RAM + SSDs NVMe rápidos.</li>
+            </ul>
+          </div>
+
+          <div class="card purple-border">
+            <h3>3. Query Service (N1QL)</h3>
+            <ul class="tech-list">
+              <li>Parser, otimizador de planos (CBO) e executor de consultas SQL++.</li>
+              <li><strong>Perfil de Hardware:</strong> Muitos núcleos de CPU (Compute-intensive).</li>
+            </ul>
+          </div>
+
+          <div class="card couchdb-border">
+            <h3>4. Search Service (FTS)</h3>
+            <ul class="tech-list">
+              <li>Busca textual completa (Bleve) e <strong>Vector Search</strong> (IA/RAG) integrados sem precisar de Elasticsearch externo.</li>
+            </ul>
+          </div>
+
+          <div class="card couchbase-border">
+            <h3>5. Analytics Service</h3>
+            <ul class="tech-list">
+              <li>Motor MPP colunar para queries OLAP pesadas com isolamento total (Zero ETL dos nós operacionais).</li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>6. Eventing Service</h3>
+            <ul class="tech-list">
+              <li>Triggers reativos em JavaScript (V8) executados assincronamente em resposta a mutações via DCP.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 9: COUCHBASE — SCOPES/COLLECTIONS, N1QL (SQL++) E GSI (INTEGRANTE 3)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 3"
+        data-time="2 min (Acumulado: 18:00)"
+        data-script="E como nós consultamos e organizamos dados no Couchbase? A partir da versão 7, o Couchbase introduziu uma hierarquia de três níveis: Bucket, Scope e Collection, permitindo multi-tenancy e mapeamento direto de bancos relacionais (Database, Schema e Tabela).<br><br>Mas a grande inovação para desenvolvedores é o N1QL (pronuncia-se Nickel), hoje padronizado como SQL++. É uma implementação completa de ANSI SQL adaptada para JSON. Você escreve SELECT, WHERE, GROUP BY e até INNER JOIN entre coleções diferentes, além de operadores específicos para JSON como UNNEST, que transforma elementos de um array interno em linhas relacionais em tempo de execução.<br><br>Para que o N1QL seja rápido e não faça scatter-gather batendo em todos os nós de dados, o Couchbase usa GSI (Global Secondary Indexes). Os índices vivem de forma independente no Index Service, garantindo que uma query SQL++ saiba exatamente em qual vBucket buscar o documento em milissegundos. Passo agora a palavra ao Integrante 4.">
+        <div class="slide-meta">Slide 9 • Consultas Declarativas e Indexação Global</div>
+        <h2 class="slide-title">Couchbase: Hierarquia Lógica, N1QL (SQL++) e Índices GSI</h2>
+        <p class="slide-subtitle">O poder do ANSI SQL aplicado nativamente a documentos JSON aninhados</p>
+
+        <div class="grid-2">
+          <div class="card couchbase-border">
+            <h3>🗂️ Mapeamento Relacional e Recursos SQL++</h3>
+            <ul class="tech-list">
+              <li><strong>Hierarquia 3 Níveis:</strong> <code class="inline">Bucket</code> (DB) ➔ <code class="inline">Scope</code> (Schema) ➔ <code class="inline">Collection</code> (Tabela).</li>
+              <li><strong>ANSI JOINs Nativos:</strong> <code class="inline">INNER JOIN</code>, <code class="inline">LEFT OUTER JOIN</code> entre coleções JSON distintas.</li>
+              <li><strong>Operadores para Arrays JSON:</strong> <code class="inline">UNNEST</code> (achata arrays internos), <code class="inline">NEST</code>, <code class="inline">ARRAY ... FOR ... END</code>.</li>
+              <li><strong>GSI vs. Scatter-Gather:</strong> O Query Service consulta apenas o nó GSI relevante e busca documentos exatos por chave (ou resolve 100% via <em>Covering Index</em>).</li>
+            </ul>
+          </div>
+
+          <div>
+            <pre class="code-block">
+-- Exemplo Real de N1QL (SQL for JSON) no Couchbase
+SELECT m.nome AS aluno,
+       m.curso,
+       d.nome AS disciplina,
+       d.nota
+FROM `academico`.`graduacao`.`matriculas` AS m
+UNNEST m.disciplinas AS d
+WHERE m.curso = "Ciencia da Computacao"
+  AND d.codigo = "BD02"
+  AND d.nota >= 8.5
+ORDER BY d.nota DESC
+LIMIT 10;</pre>
+            <div class="diagram-box" style="margin-top: 12px;">
+              <div class="flow-row">
+                <div class="flow-node">1. Query Service (SQL++)</div>
+                <span class="flow-arrow">➔</span>
+                <div class="flow-node highlight-green">2. Index Service (GSI Scan)</div>
+                <span class="flow-arrow">➔</span>
+                <div class="flow-node highlight-blue">3. Data Service (Fetch KV em RAM)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 10: ONDE O APACHE COUCHDB BRILHA (INTEGRANTE 4)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 4"
+        data-time="2 min 45s (Acumulado: 20:45)"
+        data-script="Obrigado. Agora que compreendemos as duas arquiteturas, surge a pergunta essencial de um arquiteto de soluções: quando escolher cada um? Vamos começar pelo Apache CouchDB.<br><br>O CouchDB é imbatível quando o requisito principal do sistema é Offline-First e Sincronização na Borda (Edge). Graças ao seu protocolo de replicação sobre HTTP e ao modelo de revisões _rev, surgiu o PouchDB: um banco em JavaScript que roda direto no navegador do usuário ou dentro de um app React Native/Electron.<br><br>Imagine um aplicativo usado por médicos em regiões remotas da Amazônia ou técnicos de manutenção dentro de minas subterrâneas. O aplicativo grava dados localmente no PouchDB com zero latência de rede. Quando o dispositivo encontra sinal 4G ou Wi-Fi por apenas 30 segundos, uma única linha de código aciona a replicação contínua com o Apache CouchDB central na nuvem. Além disso, o motor em Erlang do CouchDB é extremamente leve, podendo rodar em um Raspberry Pi na borda com pouquíssima memória RAM.">
+        <div class="slide-meta">Slide 10 • Posicionamento Arquitetural: Apache CouchDB</div>
+        <h2 class="slide-title">Onde o Apache CouchDB Brilha: O Rei do Offline-First e Edge</h2>
+        <p class="slide-subtitle">A simbiose perfeita entre Apache CouchDB no servidor e PouchDB nos dispositivos</p>
+
+        <div class="grid-2">
+          <div class="card couchdb-border">
+            <h3>📱 Arquitetura Offline-First (CouchDB + PouchDB)</h3>
+            <ul class="tech-list">
+              <li><strong>PouchDB:</strong> Implementação JavaScript do protocolo CouchDB que armazena dados localmente no navegador (IndexedDB) ou mobile (SQLite).</li>
+              <li><strong>Zero Latência Percebida:</strong> A aplicação lê e escreve 100% no banco local, funcionando perfeitamente sem internet.</li>
+              <li><strong>Sincronização Bidirecional em 1 Linha:</strong><br/>
+                <code class="inline">localDB.sync(remoteCouchDB, { live: true, retry: true })</code></li>
+            </ul>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>🛰️ Cenários Ideais de Engenharia</h3>
+            <ul class="tech-list">
+              <li><strong>Operações de Campo sem Rede:</strong> Logística em estradas, plataformas marítimas, aviação, minas subterrâneas e zonas rurais.</li>
+              <li><strong>Edge Computing & IoT:</strong> Consumo mínimo de recursos (roda em containers ou Raspberry Pi com ~64–128 MB de RAM).</li>
+              <li><strong>Topologias Multi-Site Descentralizadas:</strong> Filiais ou navios que operam autonomamente e sincronizam com a matriz via satélite.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <div class="flow-row">
+            <div class="flow-node highlight-orange"><strong>App Mobile / Browser (PouchDB)</strong><br/>Leitura/Escrita Local Instantânea</div>
+            <span class="flow-arrow">⇄ HTTP Sync (<code class="inline">_changes</code> + <code class="inline">_revs_diff</code>) quando há rede ⇄</span>
+            <div class="flow-node highlight-green"><strong>Cluster Central Apache CouchDB</strong><br/>Consolidação e Backup na Nuvem</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 11: CASOS REAIS DE MERCADO E TRADE-OFFS DO COUCHDB (INTEGRANTE 4)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 4"
+        data-time="2 min 45s (Acumulado: 23:30)"
+        data-script="Olhando para casos reais no mercado, o exemplo mais clássico do CouchDB foi o registro oficial do npm, que durante anos usou o protocolo de replicação do CouchDB para distribuir metadados de milhões de pacotes Node.js para mirrors no mundo inteiro. Outro caso de altíssimo nível técnico é o Hyperledger Fabric, o principal framework de Blockchain corporativo da Linux Foundation, que adota o Apache CouchDB como banco de estado oficial (World State) para armazenar o estado atual dos ativos em JSON auditável. Na área humanitária, organizações na África usaram CouchDB + PouchDB durante surtos de Ebola para coletar dados de pacientes em tablets totalmente offline.<br><br>Porém, todo arquiteto precisa conhecer os trade-offs. Você não deve escolher o CouchDB para um sistema de telemetria de alta frequência que atualiza o mesmo documento mil vezes por segundo, pois cada atualização cria uma nova folha na árvore _rev e infla o arquivo append-only até a compactação rodar. Também não é indicado quando seu sistema exige JOINs ad-hoc complexos. Agora passo a palavra para o Integrante 5 abordar o Couchbase.">
+        <div class="slide-meta">Slide 11 • Mercado e Limitações: Apache CouchDB</div>
+        <h2 class="slide-title">Apache CouchDB no Mercado Real e Trade-offs Técnicos</h2>
+        <p class="slide-subtitle">Quem utiliza em produção e quando NÃO escolher o CouchDB</p>
+
+        <div class="grid-2">
+          <div class="card emerald-border">
+            <h3>🏆 Casos Reais no Mercado Global</h3>
+            <ul class="tech-list">
+              <li><strong>Hyperledger Fabric (Linux Foundation):</strong> Utiliza o CouchDB como <em>World State Database</em> oficial para contratos inteligentes (Chaincode) devido à determinicidade e queries JSON ricas.</li>
+              <li><strong>npm Registry:</strong> Base histórica de replicação global de metadados de pacotes JavaScript e <em>mirrors</em> offline corporativos.</li>
+              <li><strong>eHealth Africa & Médicos Sem Fronteiras:</strong> Rastreamento epidemiológico em campo (combate ao Ebola) em áreas sem conectividade.</li>
+              <li><strong>IBM Cloudant:</strong> Oferta DBaaS global na IBM Cloud construída sobre a arquitetura do Apache CouchDB.</li>
+            </ul>
+          </div>
+
+          <div class="card couchdb-border">
+            <h3>⚠️ Trade-offs (Quando Evitar o CouchDB)</h3>
+            <ul class="tech-list">
+              <li><strong>Mutações de Alta Frequência na Mesma Chave:</strong> Atualizar um contador 500x/seg gera explosão da árvore <code class="inline">_rev</code> e crescimento acelerado do disco antes do <em>Compaction</em>.</li>
+              <li><strong>Ausência de JOINs e Transações Multi-Documento:</strong> Não suporta junções entre documentos distintos no servidor.</li>
+              <li><strong>Custo de Serialização HTTP:</strong> Cada operação individual trafega cabeçalhos HTTP, tendo latência maior que protocolos binários em RAM.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 12: ONDE O COUCHBASE BRILHA — ESCALA E XDCR (INTEGRANTE 5)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 5"
+        data-time="2 min 45s (Acumulado: 26:15)"
+        data-script="Obrigado. Quando olhamos para o Couchbase, entramos no território das aplicações mission-critical de altíssima vazão e latência sub-milissegundo.<br><br>Em muitas arquiteturas modernas, as equipes colocam um banco documental ou relacional no fundo e precisam adicionar um cluster de Redis ou Memcached na frente para aguentar o tráfego de leitura. Isso cria um problema clássico de engenharia: invalidação de cache e sincronização dupla. O Couchbase elimina essa complexidade porque ele já é o cache em memória e o banco de dados persistente com suporte a SQL++ na mesma plataforma.<br><br>Além disso, para escala global entre continentes, o Couchbase possui o XDCR (Cross Data Center Replication). Diferente da replicação via HTTP do CouchDB, o XDCR transmite mutações diretamente da memória RAM de um datacenter na Virgínia para a memória RAM de outro datacenter em São Paulo usando streams binários DCP, resolvendo conflitos em tempo real via Hybrid Logical Clocks.">
+        <div class="slide-meta">Slide 12 • Posicionamento Arquitetural: Couchbase</div>
+        <h2 class="slide-title">Onde o Couchbase Brilha: Latência Sub-ms e Escala Global (XDCR)</h2>
+        <p class="slide-subtitle">Consolidando Cache Distribuído + Banco Documental SQL++ em uma única camada</p>
+
+        <div class="grid-2">
+          <div class="card couchbase-border">
+            <h3>⚡ Fim da Arquitetura Dupla (DB + Cache Externo)</h3>
+            <ul class="tech-list">
+              <li>Substitui a complexa combinação <strong>RDBMS/MongoDB + Redis/Memcached</strong> por um único cluster unificado.</li>
+              <li>Elimina bugs de <em>Cache Invalidation</em>, <em>Cache Stampede</em> e dessincronização entre cache e banco.</li>
+              <li><strong>Cenários Ideais:</strong> Gestão de Sessão/Perfil de milhões de usuários, Catálogos de E-commerce, Antifraude em tempo real, Jogos Online e AdTech.</li>
+            </ul>
+          </div>
+
+          <div class="card purple-border">
+            <h3>🌍 XDCR (Cross Data Center Replication)</h3>
+            <ul class="tech-list">
+              <li>Replicação assíncrona <strong>Memória-a-Memória</strong> entre datacenters ou nuvens distintas (ex: AWS us-east ⇄ GCP southamerica-east).</li>
+              <li>Suporta topologias Unidirecionais, Bidirecionais (<em>Active-Active</em>) e filtragem avançada por expressões SQL++.</li>
+              <li><strong>Resolução Automática de Conflitos:</strong> Por contagem de revisões (<em>Sequence Number</em>) ou Timestamp com <strong>HLC (Hybrid Logical Clocks)</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <div class="flow-row">
+            <div class="flow-node highlight-blue"><strong>Cluster A (São Paulo)</strong><br/>RAM Data Service</div>
+            <span class="flow-arrow">⇄ XDCR (Stream Binário DCP sobre WAN / TLS) ⇄</span>
+            <div class="flow-node highlight-blue"><strong>Cluster B (Virgínia - EUA)</strong><br/>RAM Data Service</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 13: CASOS REAIS DE MERCADO E TRADE-OFFS DO COUCHBASE (INTEGRANTE 5)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 5"
+        data-time="2 min 45s (Acumulado: 29:00)"
+        data-script="No mercado corporativo, os números do Couchbase impressionam. O LinkedIn utiliza o Couchbase como camada crítica de dados atendendo mais de 10 milhões de operações por segundo com latência inferior a 2 milissegundos. Na indústria de aviação, gigantes como Amadeus, Sabre e United Airlines processam disponibilidade de voos e check-ins de milhões de passageiros no Couchbase. No setor financeiro e de pagamentos, o PayPal usa Couchbase para análise de sessão e prevenção a fraudes em tempo real.<br><br>E quais são os trade-offs do Couchbase? O primeiro é o custo de hardware e memória. O Couchbase foi desenhado para servidores com dezenas ou centenas de gigabytes de RAM; tentar rodá-lo em uma máquina virtual minúscula de 512 MB é inviável. O segundo é a complexidade operacional: planejar o dimensionamento de serviços Data, Index e Query e gerenciar rebalanceamentos de vBuckets exige uma equipe de engenharia de dados madura. Passo agora a palavra ao Integrante 6 para consolidar o comparativo direto.">
+        <div class="slide-meta">Slide 13 • Mercado e Limitações: Couchbase Server</div>
+        <h2 class="slide-title">Couchbase em Escala Extrema e Seus Trade-offs Arquiteturais</h2>
+        <p class="slide-subtitle">Cases de missão crítica (Tier-1) e os custos de infraestrutura Memory-First</p>
+
+        <div class="grid-2">
+          <div class="card emerald-border">
+            <h3>🏢 Gigantes que Rodam em Couchbase</h3>
+            <ul class="tech-list">
+              <li><strong>LinkedIn:</strong> Mais de <strong>10 milhões de queries/segundo</strong> em clusters Couchbase servindo perfis e conexões com latência &lt; 2ms.</li>
+              <li><strong>Amadeus, Sabre & United Airlines:</strong> Sistemas globais de reservas de voos, inventário de assentos e cartões de embarque em tempo real.</li>
+              <li><strong>PayPal & Revolut:</strong> Prevenção a fraudes, autenticação e sessões financeiras de baixa latência.</li>
+              <li><strong>Domino's Pizza & Tesco:</strong> Processamento de pedidos em picos extremos (Super Bowl / Black Friday).</li>
+            </ul>
+          </div>
+
+          <div class="card couchdb-border">
+            <h3>⚠️ Trade-offs (Quando Evitar o Couchbase)</h3>
+            <ul class="tech-list">
+              <li><strong>Pegada Pesada de Memória RAM:</strong> Exige servidores robustos para manter o <em>Working Set</em> e índices em RAM (mínimo recomendado em produção: 16 GB–64 GB+ por nó).</li>
+              <li><strong>Complexidade Operacional (Day-2 Ops):</strong> Requer dimensionamento cuidadoso de cotas de serviços MDS, monitoramento de <em>Cache Miss Ratio</em> e rebalanceamento de vBuckets.</li>
+              <li><strong>Licenciamento Enterprise:</strong> Recursos avançados (como motor Magma, MOI e certas features de segurança/backup) são restritos à edição Enterprise/Capella.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 14: QUADRO COMPARATIVO DIRETO — PARTE 1 (INTEGRANTE 6)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 6"
+        data-time="2 min 45s (Acumulado: 31:45)"
+        data-script="Obrigado. Para sintetizar nossa análise técnica, construímos uma matriz comparativa direta dividida em seis pilares fundamentais da arquitetura de banco de dados.<br><br>Primeiro, no Modelo de Dados: ambos guardam documentos JSON, mas o Couchbase organiza os dados em Bucket, Scope e Collection, facilitando a migração de sistemas relacionais, enquanto o CouchDB trabalha diretamente com bancos de dados planos e suporta anexos binários nativos vinculados ao documento.<br><br>Segundo, sob a lente do Teorema CAP: o Apache CouchDB é essencialmente AP. Diante de uma partição de rede, qualquer nó aceita escritas e mantém a disponibilidade, resolvendo divergências depois via árvore de revisões. Já o Couchbase é CP por padrão: como cada chave pertence a apenas um único vBucket ativo no cluster em um dado momento, todas as leituras e escritas daquela chave passam pelo mesmo nó primário em memória, garantindo consistência imediata (Read-Your-Own-Writes).<br><br>Terceiro, em Mecanismos de Consulta: o CouchDB exige planejamento prévio com Views MapReduce ou filtros JSON simples via Mango (_find) sem suporte a JOIN. Já o Couchbase entrega o poder do SQL++ (N1QL) com ANSI JOINs e transações ACID multi-documento.">
+        <div class="slide-meta">Slide 14 • Matriz Comparativa Arquitetural (Parte 1/2)</div>
+        <h2 class="slide-title">Comparativo Direto: Modelo de Dados, Teorema CAP e Consultas</h2>
+        <p class="slide-subtitle">Análise lado a lado das garantias distribuídas e capacidades de manipulação de dados</p>
+
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Dimensão Técnica</th>
+              <th style="width: 39%;">🟧 Apache CouchDB</th>
+              <th style="width: 39%;">🟦 Couchbase Server</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Modelo de Dados</strong></td>
+              <td>Documentos JSON + Anexos binários (<code class="inline">_attachments</code>). Estrutura plana de <em>Databases</em> sem schemas intermediários.</td>
+              <td>Documentos JSON + KV Binário. Hierarquia relacional em 3 níveis: <code class="inline">Bucket</code> ➔ <code class="inline">Scope</code> ➔ <code class="inline">Collection</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>2. Teorema CAP / PACELC</strong></td>
+              <td><strong>AP (Availability + Partition Tolerance)</strong> (PC/EC): Prioriza disponibilidade contínua e consistência eventual entre réplicas.</td>
+              <td><strong>CP por padrão</strong> (PC/EC): Um único vBucket ativo por chave garante consistência imediata (<em>Read-Your-Own-Writes</em>).</td>
+            </tr>
+            <tr>
+              <td><strong>3. Concorrência e ACID</strong></td>
+              <td>MVCC otimista explícito via árvore <code class="inline">_rev</code> no nível do documento. Sem transações multi-documento.</td>
+              <td>CAS otimista + Lock pessimista opcional + <strong>Transações ACID Distribuídas Multi-Documento</strong>.</td>
+            </tr>
+            <tr>
+              <td><strong>4. Mecanismos de Consulta</strong></td>
+              <td>Views pré-computadas (MapReduce em JS/Erlang) e <strong>Mango Queries (<code class="inline">_find</code>)</strong> em JSON. Não possui <code class="inline">JOIN</code>.</td>
+              <td><strong>N1QL / SQL++ (SQL for JSON)</strong> com <code class="inline">ANSI JOIN</code>, <code class="inline">UNNEST</code>, <code class="inline">GROUP BY</code>, CTEs + Full-Text e Vector Search.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 15: QUADRO COMPARATIVO DIRETO — PARTE 2 (INTEGRANTE 6)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 6"
+        data-time="2 min 45s (Acumulado: 34:30)"
+        data-script="Continuando nossa matriz comparativa nos três últimos pilares:<br><br>Em Mecanismos de Replicação, o protocolo HTTP do CouchDB é universal e permite que até um navegador web participe da replicação de igual para igual com o servidor. O Couchbase, por sua vez, separa isso: usa o protocolo binário DCP/XDCR de altíssima velocidade entre servidores e exige produtos dedicados — o Sync Gateway e o Couchbase Lite — caso você queira sincronização mobile.<br><br>Em Performance e Latência, não há competição direta porque foram feitos para escalas diferentes: o CouchDB opera na casa dos milissegundos, limitado pelo protocolo HTTP e escrita append-only em disco; o Couchbase opera na casa de microssegundos (sub-milissegundo) graças ao cache gerenciado em memória e conexão TCP direta ao vBucket.<br><br>Por fim, na Complexidade Operacional, o CouchDB é enxuto e simples de subir em qualquer infraestrutura, exigindo cuidado apenas com a compactação de disco e conflitos de revisão. Já o Couchbase é uma plataforma distribuída robusta que demanda planejamento de capacidade de RAM e topologia Multi-Service. Passo agora a palavra ao Integrante 7, que conduzirá nossa demonstração prática e workshop.">
+        <div class="slide-meta">Slide 15 • Matriz Comparativa Arquitetural (Parte 2/2)</div>
+        <h2 class="slide-title">Comparativo Direto: Replicação, Latência e Complexidade</h2>
+        <p class="slide-subtitle">Como escolher a ferramenta certa para o SLA e a infraestrutura do projeto</p>
+
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Dimensão Técnica</th>
+              <th style="width: 39%;">🟧 Apache CouchDB</th>
+              <th style="width: 39%;">🟦 Couchbase Server</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>5. Mecanismos de Replicação</strong></td>
+              <td><strong>Couch Replication Protocol</strong> sobre HTTP (<code class="inline">_changes</code> + <code class="inline">_revs_diff</code>). Nativo para P2P, Edge e navegadores via <strong>PouchDB</strong>.</td>
+              <td><strong>DCP</strong> (intra-cluster) e <strong>XDCR</strong> (inter-cluster) via stream binário TCP de memória para memória. Mobile requer <em>Sync Gateway + Couchbase Lite</em>.</td>
+            </tr>
+            <tr>
+              <td><strong>6. Performance e Latência</strong></td>
+              <td>Latência em <strong>milissegundos (5ms–30ms+)</strong>, limitada por I/O de disco append-only e overhead de HTTP/JSON.</td>
+              <td>Latência <strong>sub-milissegundo (&lt; 1ms / microssegundos)</strong> para operações KV em RAM e poucos ms para queries SQL++ com GSI.</td>
+            </tr>
+            <tr>
+              <td><strong>7. Complexidade Operacional</strong></td>
+              <td><strong>Baixa Infraestrutura:</strong> Roda com pouca RAM, API 100% HTTP sem SDK obrigatório. Exige atenção a <em>Compaction</em> e conflitos <code class="inline">_rev</code>.</td>
+              <td><strong>Engenharia Enterprise:</strong> Exige dimensionamento de RAM (<em>Working Set</em>), topologia MDS (Data/Index/Query) e SDK binário.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 16: WORKSHOP PRÁTICO — TOPOLOGIA DOCKER COMPOSE (INTEGRANTE 7)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 7"
+        data-time="2 min (Acumulado: 36:30)"
+        data-script="Obrigado. Agora vamos sair da teoria e provar esses conceitos arquiteturais na prática. Preparamos um laboratório 100% reproduzível via Docker Compose que sobe simultaneamente o Apache CouchDB 3.3 e o Couchbase Server 7.6.<br><br>Reparem na diferença imediata já na configuração de rede dos containers: para o CouchDB, precisamos expor apenas uma única porta, a 5984, porque absolutamente tudo — desde administração, inserção de dados, queries Mango até a interface web Fauxton — acontece sobre HTTP REST padrão.<br><br>Já no container do Couchbase, expomos a porta 8091 para o Console de Gerenciamento, a 8093 para o motor de consultas N1QL e a 11210 para o protocolo binário de chave-valor onde os SDKs se conectam diretamente aos vBuckets.">
+        <div class="slide-meta">Slide 16 • Módulo 2: Workshop Prático Reproduzível</div>
+        <h2 class="slide-title">Arquitetura do Laboratório Prático (Docker Compose)</h2>
+        <p class="slide-subtitle">Subindo Apache CouchDB 3.3 e Couchbase Server 7.6 lado a lado</p>
+
+        <div class="grid-2">
+          <div>
+            <pre class="code-block">
+# docker-compose.yml (Pronto na pasta /workshop)
+version: '3.8'
+services:
+  couchdb:
+    image: apache/couchdb:3.3
+    container_name: lab_couchdb
+    ports:
+      - "5984:5984" # API HTTP REST + Fauxton UI (/_utils)
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=admin123
+
+  couchbase:
+    image: couchbase:community-7.6.0
+    container_name: lab_couchbase
+    ports:
+      - "8091-8096:8091-8096" # Web Console (8091), N1QL (8093)
+      - "11210:11210"         # Data Service KV Binário (vBuckets)</pre>
+          </div>
+
+          <div class="card emerald-border">
+            <h3>🧪 Roteiro de Execução ao Vivo</h3>
+            <ul class="tech-list">
+              <li><strong>Subida Rápida:</strong> <code class="inline">docker compose up -d</code></li>
+              <li><strong>Experimento 1 (CouchDB :5984):</strong>
+                <br/>• Criar banco <code class="inline">universidade_db</code> via <code class="inline">PUT</code>.
+                <br/>• Provocar e resolver um <code class="inline">HTTP 409 Conflict</code> (<code class="inline">_rev</code>).
+                <br/>• Consultar com Mango (<code class="inline">/_find</code>) e assistir ao stream <code class="inline">/_changes?feed=continuous</code> em tempo real.</li>
+              <li><strong>Experimento 2 (Couchbase :8091):</strong>
+                <br/>• Criar <code class="inline">academico.graduacao.matriculas</code>.
+                <br/>• Rodar queries <strong>SQL++ (N1QL)</strong> com <code class="inline">UNNEST</code> e índices GSI e inspecionar latência sub-ms no Dashboard.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 17: LIVE DEMO 1 — APACHE COUCHDB (INTEGRANTE 7)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 7"
+        data-time="2 min 15s (Acumulado: 38:45)"
+        data-script="Na primeira parte da nossa demonstração prática com o Apache CouchDB, vamos usar apenas o cURL no terminal para mostrar que o banco é um servidor web nativo.<br><br>Primeiro criamos o banco universidade_db e inserimos o documento aluno_01. O CouchDB nos devolve rev: 1-.... Em seguida, tentamos atualizar a nota desse aluno sem passar o _rev — e vemos ao vivo o erro 409 Document update conflict, comprovando na prática o bloqueio otimista MVCC que explicamos no Slide 5. Quando passamos o _rev correto, a revisão avança para 2-....<br><br>Também deixamos um segundo terminal aberto conectado ao endpoint _changes?feed=continuous. No exato instante em que alteramos o documento no primeiro terminal, o evento JSON salta na tela do segundo terminal em tempo real, demonstrando como o protocolo de replicação detecta mutações.">
+        <div class="slide-meta">Slide 17 • Prática 1: Apache CouchDB via API REST & Fauxton</div>
+        <h2 class="slide-title">Live Demo 1: Ciclo MVCC (<code class="inline">_rev</code>), Mango e Stream <code class="inline">_changes</code></h2>
+        <p class="slide-subtitle">Comandos executados diretamente contra o servidor HTTP nativo na porta <code class="inline">5984</code></p>
+
+        <div class="grid-2">
+          <div>
+            <pre class="code-block">
+# 1. Criar Banco e Inserir Documento (Gera rev "1-...")
+curl -X PUT http://admin:admin123@localhost:5984/universidade_db
+curl -X PUT http://admin:admin123@localhost:5984/universidade_db/aluno_01 \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Ana Silva","curso":"Ciencia da Computacao","cra":8.7}'
+
+# 2. Tentar Atualizar SEM _rev -> Dispara HTTP 409 Conflict!
+curl -i -X PUT http://admin:admin123@localhost:5984/universidade_db/aluno_01 \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Ana Silva","cra":9.1}'
+# HTTP/1.1 409 Conflict -> {"error":"conflict","reason":"Document update conflict."}
+
+# 3. Atualizar ENVIANDO o _rev atual -> Sucesso (Gera rev "2-...")
+curl -X PUT http://admin:admin123@localhost:5984/universidade_db/aluno_01 \
+  -H "Content-Type: application/json" \
+  -d '{"_rev":"1-4c6114c...","nome":"Ana Silva","cra":9.1}'</pre>
+          </div>
+
+          <div>
+            <pre class="code-block">
+# 4. Consulta Declarativa com Mango Query (POST /_find)
+curl -X POST http://admin:admin123@localhost:5984/universidade_db/_find \
+  -H "Content-Type: application/json" \
+  -d '{
+    "selector": { "cra": { "$gt": 8.5 } },
+    "fields": ["_id", "_rev", "nome", "cra"]
+  }'
+
+# 5. Escutar Feed de Mudanças em Tempo Real (Terminal 2)
+curl -N "http://admin:admin123@localhost:5984/universidade_db/_changes?feed=continuous&include_docs=true&since=now"
+# Saída imediata a cada mutação:
+# {"seq":"3-g1...","id":"aluno_01","changes":[{"rev":"2-..."}]}</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 18: LIVE DEMO 2 — COUCHBASE N1QL & SCRIPT PYTHON (INTEGRANTE 7)
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Integrante 7"
+        data-time="2 min 15s (Acumulado: 41:00)"
+        data-script="Na segunda etapa do nosso laboratório, entramos no Web Console do Couchbase na porta 8091. Criamos o bucket academico, o escopo graduacao e a coleção matriculas.<br><br>No Query Workbench, executamos comandos SQL++ (N1QL) idênticos ao SQL que já conhecemos do mundo relacional, criando um índice GSI secundário e rodando um SELECT com filtros e UNNEST sobre arrays internos de disciplinas do aluno. Ao olharmos para o painel de estatísticas em tempo real do Couchbase, vemos que 100% das leituras vieram da memória RAM com tempo de resposta na faixa de microssegundos.<br><br>Por fim, rodamos nosso script Python conectando direto no banco para demonstrar um fluxo CRUD completo com tratamento de concorrência. Agora podemos testar o conhecimento da turma com nossas 5 questões interativas de arquitetura!">
+        <div class="slide-meta">Slide 18 • Prática 2: Couchbase N1QL (SQL++) & Código Python</div>
+        <h2 class="slide-title">Live Demo 2: Índices GSI, Queries SQL++ e Automação CRUD</h2>
+        <p class="slide-subtitle">Consultando JSON com sintaxe SQL padrão e validando latência em memória</p>
+
+        <div class="grid-2">
+          <div>
+            <pre class="code-block">
+-- No Query Workbench do Couchbase (http://localhost:8091)
+-- 1. Criar Índices GSI (Primário e Secundário Composto)
+CREATE PRIMARY INDEX `idx_primary`
+ON `academico`.`graduacao`.`matriculas`;
+
+CREATE INDEX `idx_curso_cra`
+ON `academico`.`graduacao`.`matriculas`(`curso`, `cra` DESC);
+
+-- 2. Inserir Documento JSON via SQL++
+INSERT INTO `academico`.`graduacao`.`matriculas` (KEY, VALUE)
+VALUES ("mat_001", {
+  "nome": "Fernanda Lima",
+  "curso": "Ciencia da Computacao",
+  "cra": 9.4,
+  "disciplinas": [
+    {"codigo": "BD02", "nome": "Bancos NoSQL", "nota": 9.8}
+  ]
+});
+
+-- 3. Consultar com UNNEST + Índice GSI Secundário
+SELECT m.nome, d.nome AS disciplina, d.nota
+FROM `academico`.`graduacao`.`matriculas` AS m
+UNNEST m.disciplinas AS d
+WHERE m.curso = "Ciencia da Computacao" AND m.cra >= 9.0;</pre>
+          </div>
+
+          <div>
+            <pre class="code-block">
+# Trecho do Script: workshop/crud_couchdb_demo.py
+def create_ou_update_documento(doc_id: str, payload: dict) -> str:
+    url = f"{BASE_URL}/{DB_NAME}/{doc_id}"
+    resp = requests.put(url, auth=AUTH, json=payload)
+
+    if resp.status_code == 409:
+        raise RuntimeError(
+            f"[CONFLITO MVCC - HTTP 409] O documento '{doc_id}' "
+            "possui revisão mais recente! Envie o '_rev' atual."
+        )
+    resp.raise_for_status()
+    return resp.json()["rev"]
+
+# Execução no terminal:
+# $ python workshop/crud_couchdb_demo.py
+# [OK] Banco 'universidade_db' pronto para uso.
+# [WRITE OK] ID: aluno_demo_python | Nova Revisão: 1-92a8...
+# [CONFLITO MVCC - HTTP 409] Capturado e tratado com sucesso!
+# [WRITE OK] ID: aluno_demo_python | Nova Revisão: 2-f41c...</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 19 (BÔNUS INTERATIVO): AVALIAÇÃO — QUESTÕES 1 A 3
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Todos os Integrantes (Dinâmica com a Turma)"
+        data-time="Bônus / Perguntas"
+        data-script="Para fixar os conceitos arquiteturais apresentados, preparamos 5 questões inéditas de nível universitário. Clique em qualquer alternativa na tela para validar a resposta e exibir a justificativa técnica detalhada.">
+        <div class="slide-meta">Módulo 3 • Avaliação Interativa em Sala (Parte 1/2)</div>
+        <h2 class="slide-title">Quiz Arquitetural (Clique na alternativa para revelar o gabarito)</h2>
+
+        <div class="grid-3">
+          <!-- Questão 1 -->
+          <div class="card couchdb-border">
+            <h3>Questão 1: MVCC (<code class="inline">_rev</code>) no CouchDB</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">
+              Dois clientes leem <code class="inline">_rev: "1-abc"</code>. O Cliente A atualiza para <code class="inline">2-def</code>. Um ms depois, o Cliente B envia <code class="inline">PUT</code> ainda com <code class="inline">1-abc</code>. O que ocorre?
+            </p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q1-exp')"><strong>A)</strong> Usa lock pessimista e sobrescreve bytes in-place.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, true, 'q1-exp')"><strong>B)</strong> Rejeita com <code class="inline">HTTP 409 Conflict</code> e mantém escrita append-only até o Compaction.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q1-exp')"><strong>C)</strong> Aceita com Last-Write-Wins via relógio NTP.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q1-exp')"><strong>D)</strong> Faz merge automático de atributos JSON distintos.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q1-exp')"><strong>E)</strong> Grava no vBucket em RAM e resolve no Index Service.</div>
+            </div>
+            <div class="quiz-explanation" id="q1-exp">
+              <strong>Gabarito: B.</strong> O CouchDB exige o <code class="inline">_rev</code> atual da folha; revisões obsoletas recebem <code class="inline">409 Conflict</code> imediato e os blocos antigos ficam intactos até o Compaction.
+            </div>
+          </div>
+
+          <!-- Questão 2 -->
+          <div class="card couchbase-border">
+            <h3>Questão 2: vBuckets no Couchbase</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">
+              Como o Couchbase Server particiona dados e roteia requisições KV em um cluster de 8 nós?
+            </p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q2-exp')"><strong>A)</strong> Usa proxies roteadores e ZooKeeper central.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q2-exp')"><strong>B)</strong> Faz shard splitting dinâmico a cada 64 MB via HTTP.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, true, 'q2-exp')"><strong>C)</strong> Divide o Bucket em 1024 vBuckets (<code class="inline">CRC32</code>) e o SDK faz roteamento single-hop via Cluster Map.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q2-exp')"><strong>D)</strong> Todos os 8 nós aceitam escrita simultânea no mesmo vBucket.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q2-exp')"><strong>E)</strong> Dobra o número de vBuckets para 2048 a cada Rebalance.</div>
+            </div>
+            <div class="quiz-explanation" id="q2-exp">
+              <strong>Gabarito: C.</strong> O particionamento em 1024 vBuckets é estático (<code class="inline">CRC32(key) % 1024</code>) e o SDK conecta direto ao nó dono do vBucket ativo.
+            </div>
+          </div>
+
+          <!-- Questão 3 -->
+          <div class="card emerald-border">
+            <h3>Questão 3: MDS e Índices GSI</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">
+              Qual é a vantagem do Multi-Dimensional Scaling (MDS) aliado a N1QL e índices GSI no Couchbase?
+            </p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q3-exp')"><strong>A)</strong> Elimina o uso de RAM no Data Service.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, true, 'q3-exp')"><strong>B)</strong> Isola cargas em hardware dedicado (RAM/CPU/I/O) e evita scatter-gather em queries secundárias.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q3-exp')"><strong>C)</strong> Obriga compilação de N1QL em Design Docs JS.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q3-exp')"><strong>D)</strong> Atualiza GSI de forma bloqueante no caminho KV.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q3-exp')"><strong>E)</strong> Usa <code class="inline">GET /_changes</code> via HTTP entre Data e Index.</div>
+            </div>
+            <div class="quiz-explanation" id="q3-exp">
+              <strong>Gabarito: B.</strong> O MDS separa Data, Index e Query em nós independentes, alimentando os índices GSI assincronamente via protocolo binário DCP.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           SLIDE 20 (BÔNUS INTERATIVO): AVALIAÇÃO — QUESTÕES 4 E 5
+           ========================================================= -->
+      <section class="slide"
+        data-speaker="Todos os Integrantes (Encerramento)"
+        data-time="Bônus / Encerramento"
+        data-script="Aqui estão as últimas duas questões avaliando Teorema CAP, Offline-First com PouchDB e o funcionamento de Tombstones e Compactação. Muito obrigado a todos pela atenção e estamos abertos a dúvidas!">
+        <div class="slide-meta">Módulo 3 • Avaliação Interativa em Sala (Parte 2/2)</div>
+        <h2 class="slide-title">Quiz Arquitetural: Teorema CAP, Offline-First e Tombstones</h2>
+
+        <div class="grid-2">
+          <!-- Questão 4 -->
+          <div class="card couchdb-border">
+            <h3>Questão 4: Teorema CAP & Cenários</h3>
+            <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 10px;">
+              <strong>Cenário I:</strong> App de inspeção em pistas remotas sem internet com sync no navegador.<br/>
+              <strong>Cenário II:</strong> Carrinho de compras global com 500k ops/s, latência sub-ms e leitura consistente.
+            </p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q4-exp')"><strong>A)</strong> Cenário I: Couchbase porta 11210 no browser | Cenário II: CouchDB.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q4-exp')"><strong>B)</strong> Ambos são estritamente CA no Teorema CAP.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, true, 'q4-exp')"><strong>C)</strong> Cenário I: CouchDB (AP) + PouchDB via HTTP Sync | Cenário II: Couchbase (CP no vBucket ativo) em RAM.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q4-exp')"><strong>D)</strong> O CouchDB descarta edições offline conflitantes sem guardar histórico.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q4-exp')"><strong>E)</strong> O CouchDB tem menor latência que a RAM por usar disco append-only.</div>
+            </div>
+            <div class="quiz-explanation" id="q4-exp">
+              <strong>Gabarito: C.</strong> O protocolo HTTP/AP do CouchDB pareado ao PouchDB domina cenários Offline-First, enquanto a arquitetura CP Memory-First por vBucket do Couchbase domina baixa latência em escala.
+            </div>
+          </div>
+
+          <!-- Questão 5 -->
+          <div class="card couchbase-border">
+            <h3>Questão 5: Tombstones (<code class="inline">_deleted</code>) e Replicação</h3>
+            <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 10px;">
+              Sobre exclusão de documentos e compactação no Apache CouchDB e replicação XDCR no Couchbase:
+            </p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q5-exp')"><strong>A)</strong> <code class="inline">DELETE</code> no CouchDB apaga bytes in-place imediatamente sem Compaction.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, true, 'q5-exp')"><strong>B)</strong> Deleções no CouchDB gravam revisão <em>tombstone</em> (<code class="inline">"_deleted": true</code>) append-only para propagar a exclusão na replicação.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q5-exp')"><strong>C)</strong> O XDCR do Couchbase não suporta Active-Active e trava em conflitos.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q5-exp')"><strong>D)</strong> Compaction apaga documentos ativos que não foram lidos em 30 dias.</div>
+              <div class="quiz-option" onclick="checkQuiz(this, false, 'q5-exp')"><strong>E)</strong> A compactação exige downtime total de leituras e escritas nos dois bancos.</div>
+            </div>
+            <div class="quiz-explanation" id="q5-exp">
+              <strong>Gabarito: B.</strong> Sem a revisão <em>tombstone</em> (<code class="inline">"_deleted": true</code>), outros nós em uma topologia distribuída não saberiam que o documento foi removido e o ressuscitariam na sincronização.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- TELEPROMPTER / SPEAKER NOTES SIDE PANEL -->
+    <aside class="notes-panel" id="notesPanel">
+      <div class="notes-header">
+        <span class="notes-speaker-badge" id="notesSpeaker">Integrante 1</span>
+        <span class="notes-time" id="notesTime">⏱ 2 min</span>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px;">
+        Roteiro de Fala Textual (Teleprompter):
+      </div>
+      <div class="notes-script" id="notesScript"></div>
+      <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted);">
+        💡 <strong>Dica de Apresentação:</strong> Pressione <code class="inline">R</code> para ocultar esta barra ao projetar para a sala, ou deixe aberta durante o ensaio cronometrado do grupo!
+      </div>
+    </aside>
+  </div>
+
+  <!-- BOTTOM PROGRESS & CONTROLS -->
+  <footer class="bottombar">
+    <div class="progress-track" id="progressBar" style="width: 5%;"></div>
+    <div class="nav-btns">
+      <button class="btn-ui" onclick="prevSlide()">◀ Anterior (←)</button>
+      <button class="btn-ui" onclick="nextSlide()">Próximo (→) ▶</button>
+    </div>
+    <div class="slide-counter" id="slideCounter">Slide 1 de 20</div>
+  </footer>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let currentIndex = 0;
+
+    // Timer state
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    function updateSlideUI() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentIndex);
+      });
+
+      const activeSlide = slides[currentIndex];
+      const speaker = activeSlide.getAttribute('data-speaker') || '';
+      const timeEst = activeSlide.getAttribute('data-time') || '';
+      const scriptHtml = activeSlide.getAttribute('data-script') || '';
+
+      document.getElementById('currentSpeakerLabel').textContent = `${speaker} • ${timeEst}`;
+      document.getElementById('notesSpeaker').textContent = speaker;
+      document.getElementById('notesTime').textContent = `⏱ ${timeEst}`;
+      document.getElementById('notesScript').innerHTML = scriptHtml;
+
+      document.getElementById('slideCounter').textContent = `Slide ${currentIndex + 1} de ${slides.length}`;
+      const progressPct = ((currentIndex + 1) / slides.length) * 100;
+      document.getElementById('progressBar').style.width = `${progressPct}%`;
+    }
+
+    function nextSlide() {
+      if (currentIndex < slides.length - 1) {
+        currentIndex++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateSlideUI();
+      }
+    }
+
+    function toggleNotes() {
+      const panel = document.getElementById('notesPanel');
+      const btn = document.getElementById('btnToggleNotes');
+      panel.classList.toggle('hidden');
+      btn.classList.toggle('active', !panel.classList.contains('hidden'));
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function checkQuiz(element, isCorrect, expId) {
+      const parent = element.parentElement;
+      Array.from(parent.children).forEach(opt => {
+        opt.classList.remove('correct', 'wrong');
+      });
+      element.classList.add(isCorrect ? 'correct' : 'wrong');
+      const expEl = document.getElementById(expId);
+      if (expEl) expEl.classList.add('visible');
+    }
+
+    // Timer logic
+    const timerDisplay = document.getElementById('timerDisplay');
+    function startPauseTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      } else {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+          const secs = String(timerSeconds % 60).padStart(2, '0');
+          timerDisplay.textContent = `⏱ ${mins}:${secs}`;
+        }, 1000);
+      }
+    }
+    timerDisplay.addEventListener('click', startPauseTimer);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key.toLowerCase() === 'r') {
+        toggleNotes();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullScreen();
+      }
+    });
+
+    // Initialize first slide
+    updateSlideUI();
+  </script>
+</body>
+</html>

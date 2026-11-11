@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------
+  # 1. APACHE COUCHDB 3.3
+  # Interface Web (Fauxton): http://localhost:5984/_utils
+  # Credenciais: admin / admin123
+  # ----------------------------------------------------------------
+  couchdb:
+    image: apache/couchdb:3.3
+    container_name: lab_couchdb
+    restart: unless-stopped
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=admin123
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+
+  # ----------------------------------------------------------------
+  # 2. COUCHBASE SERVER 7.6 (Community Edition)
+  # Interface Web Console: http://localhost:8091
+  # Credenciais (após cluster-init): admin / admin123
+  # ----------------------------------------------------------------
+  couchbase:
+    image: couchbase:community-7.6.0
+    container_name: lab_couchbase
+    restart: unless-stopped
+    ports:
+      - "8091-8096:8091-8096" # Web Console, Views, Query (8093), FTS, Analytics, Eventing
+      - "11210-11211:11210-11211" # Data Service KV (Memcached protocol binário)
+    volumes:
+      - couchbase_data:/opt/couchbase/var
+
+volumes:
+  couchdb_data:
+  couchbase_data:

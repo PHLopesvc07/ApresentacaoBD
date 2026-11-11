@@ -728,11 +728,169 @@ def add_slide(prs, data):
     notes_tf.text = data["notes"]
 
 
+def add_cover_slide(prs):
+    """Cria uma capa cinematográfica e moderna no PowerPoint."""
+    blank_layout = prs.slide_layouts[6]
+    slide = prs.slides.add_slide(blank_layout)
+
+    # 1. Background Sólido Escuro Profundo
+    bg = slide.background
+    fill = bg.fill
+    fill.solid()
+    fill.fore_color.rgb = BG_COLOR
+
+    # 2. Barra Superior com Gradiente Sutil de Borda
+    accent_strip = slide.shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(0.06)
+    )
+    accent_strip.fill.solid()
+    accent_strip.fill.fore_color.rgb = BORDER_BLUE
+    accent_strip.line.fill.background()
+
+    # 3. Badge Institucional Centralizado
+    badge = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.2), Inches(0.65), Inches(6.933), Inches(0.48)
+    )
+    badge.fill.solid()
+    badge.fill.fore_color.rgb = TOPBAR_BG
+    badge.line.color.rgb = BORDER_BLUE
+    badge.line.width = Pt(1.5)
+    tf_b = badge.text_frame
+    tf_b.word_wrap = True
+    p_b = tf_b.paragraphs[0]
+    p_b.alignment = PP_ALIGN.CENTER
+    p_b.text = "⚡ SEMINÁRIO DE BANCO DE DADOS AVANÇADO • ENGENHARIA DE SOFTWARE"
+    p_b.font.size = Pt(11)
+    p_b.font.bold = True
+    p_b.font.color.rgb = ACCENT_CYAN
+
+    # 4. Título Principal em Destaque
+    title_box = slide.shapes.add_textbox(Inches(0.6), Inches(1.3), Inches(12.133), Inches(1.4))
+    tf_t = title_box.text_frame
+    tf_t.word_wrap = True
+    p_t = tf_t.paragraphs[0]
+    p_t.alignment = PP_ALIGN.CENTER
+    p_t.text = "Apache CouchDB  vs.  Couchbase Server"
+    p_t.font.size = Pt(40)
+    p_t.font.bold = True
+    p_t.font.color.rgb = TEXT_WHITE
+
+    # 5. Tagline Explicativa
+    tag_box = slide.shapes.add_textbox(Inches(1.2), Inches(2.35), Inches(10.933), Inches(0.6))
+    tf_tag = tag_box.text_frame
+    tf_tag.word_wrap = True
+    p_tag = tf_tag.paragraphs[0]
+    p_tag.alignment = PP_ALIGN.CENTER
+    p_tag.text = "Da Sincronização Offline-First sobre HTTP à Performance Sub-Milissegundo em Memória Gerenciada"
+    p_tag.font.size = Pt(16.5)
+    p_tag.font.color.rgb = TEXT_MUTED
+
+    # 6. Duelo Visual: Card CouchDB (Esquerda)
+    c1 = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.0), Inches(3.1), Inches(5.35), Inches(2.7)
+    )
+    c1.fill.solid()
+    c1.fill.fore_color.rgb = CARD_BG
+    c1.line.color.rgb = BORDER_ORANGE
+    c1.line.width = Pt(2.5)
+    tf_c1 = c1.text_frame
+    tf_c1.word_wrap = True
+    tf_c1.margin_left = Inches(0.25)
+    tf_c1.margin_top = Inches(0.2)
+
+    p_h1 = tf_c1.paragraphs[0]
+    p_h1.text = "🟧 Apache CouchDB (AP • REST • MVCC)"
+    p_h1.font.size = Pt(17)
+    p_h1.font.bold = True
+    p_h1.font.color.rgb = BORDER_ORANGE
+    p_h1.space_after = Pt(8)
+
+    for item in [
+        "Motor Append-Only B+Tree imune a corrupções.",
+        "API 100% HTTP/REST nativa (porta 5984).",
+        "Sincronização Offline-First na borda com PouchDB."
+    ]:
+        p = tf_c1.add_paragraph()
+        p.text = f"▸  {item}"
+        p.font.size = Pt(13.5)
+        p.font.color.rgb = TEXT_WHITE
+        p.space_after = Pt(6)
+
+    # 7. Duelo Visual: Card Couchbase (Direita)
+    c2 = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.983), Inches(3.1), Inches(5.35), Inches(2.7)
+    )
+    c2.fill.solid()
+    c2.fill.fore_color.rgb = CARD_BG
+    c2.line.color.rgb = BORDER_BLUE
+    c2.line.width = Pt(2.5)
+    tf_c2 = c2.text_frame
+    tf_c2.word_wrap = True
+    tf_c2.margin_left = Inches(0.25)
+    tf_c2.margin_top = Inches(0.2)
+
+    p_h2 = tf_c2.paragraphs[0]
+    p_h2.text = "🟦 Couchbase Server (CP • RAM • SQL++)"
+    p_h2.font.size = Pt(17)
+    p_h2.font.bold = True
+    p_h2.font.color.rgb = BORDER_BLUE
+    p_h2.space_after = Pt(8)
+
+    for item in [
+        "Arquitetura Memory-First com latência sub-ms.",
+        "Particionamento por 1024 vBuckets (Single-Hop).",
+        "Linguagem N1QL (SQL++) com ANSI JOINs e GSI."
+    ]:
+        p = tf_c2.add_paragraph()
+        p.text = f"▸  {item}"
+        p.font.size = Pt(13.5)
+        p.font.color.rgb = TEXT_WHITE
+        p.space_after = Pt(6)
+
+    # 8. Faixa da Equipe (Rodapé da Capa)
+    team_bar = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.0), Inches(6.1), Inches(11.333), Inches(0.85)
+    )
+    team_bar.fill.solid()
+    team_bar.fill.fore_color.rgb = TOPBAR_BG
+    team_bar.line.color.rgb = BORDER_DEFAULT
+    team_bar.line.width = Pt(1)
+    tf_team = team_bar.text_frame
+    tf_team.word_wrap = True
+    tf_team.margin_top = Inches(0.12)
+    p_team_title = tf_team.paragraphs[0]
+    p_team_title.alignment = PP_ALIGN.CENTER
+    p_team_title.text = "EQUIPE DE APRESENTAÇÃO (7 INTEGRANTES — 35 A 45 MINUTOS)"
+    p_team_title.font.size = Pt(10.5)
+    p_team_title.font.bold = True
+    p_team_title.font.color.rgb = ACCENT_YELLOW
+    p_team_title.space_after = Pt(4)
+
+    p_members = tf_team.add_paragraph()
+    p_members.alignment = PP_ALIGN.CENTER
+    p_members.text = "Int. 1: Origem & Filosofia  |  Int. 2: Motor CouchDB  |  Int. 3: Motor Couchbase  |  Int. 4: Mercado CouchDB  |  Int. 5: Mercado Couchbase  |  Int. 6: Matriz  |  Int. 7: Workshop"
+    p_members.font.size = Pt(10)
+    p_members.font.color.rgb = TEXT_MUTED
+
+    # Notas do Apresentador para a Capa
+    notes_slide = slide.notes_slide
+    notes_tf = notes_slide.notes_text_frame
+    notes_tf.text = (
+        "CAPA OFICIAL DO SEMINÁRIO:\n"
+        "Apresentação da equipe de 7 integrantes para a disciplina de Bancos de Dados / Sistemas Distribuídos.\n"
+        "O Integrante 1 inicia a apresentação com a introdução do problema da Web 2.0 e a crise dos bancos relacionais tradicionais."
+    )
+
+
 def main():
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
 
+    # 1. Slide de Capa Oficial
+    add_cover_slide(prs)
+
+    # 2. Slides do Conteúdo
     for slide_data in SLIDES_DATA:
         add_slide(prs, slide_data)
 

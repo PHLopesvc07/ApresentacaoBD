@@ -62,52 +62,67 @@
     <main class="slide-viewport" id="slideViewport">
 
       <!-- =========================================================
-           SLIDE 1: CAPA E CONTEXTUALIZAÇÃO (INTEGRANTE 1)
+           SLIDE 1: CAPA OFICIAL (DESIGN HERO MODERNO)
            ========================================================= -->
       <section class="slide active"
         data-theme="mixed"
         data-speaker="Integrante 1"
         data-time="2 min (Acumulado: 02:00)"
         data-script="Bom dia/Boa tarde a todos. Hoje nossa equipe vai apresentar uma análise arquitetural profunda sobre dois bancos de dados NoSQL orientados a documentos que frequentemente causam confusão pelo nome, mas que resolveram problemas completamente distintos na engenharia de software: o Apache CouchDB e o Couchbase.<br><br>Quando olhamos para as limitações dos bancos relacionais tradicionais em sistemas distribuídos de larga escala, esbarramos em dois gargalos clássicos: a impedância objeto-relacional e o custo de manter transações distribuídas com bloqueio pessimista. Tanto o CouchDB quanto o Couchbase adotam o JSON como unidade básica de armazenamento, mas como veremos nos próximos 40 minutos, enquanto um nasceu para dominar a web descentralizada e redes instáveis, o outro foi projetado para entregar latência sub-milissegundo em clusters massivos orientados a memória.">
-        <div class="slide-meta">Módulo 1 • Arquitetura de Dados Não-Relacionais (NoSQL)</div>
-        <h1 class="slide-title" style="font-size: 2.75rem;">
-          <span class="gradient-text-orange">Apache CouchDB</span> vs. <span class="gradient-text-blue">Couchbase Server</span>
-        </h1>
-        <p class="slide-subtitle" style="font-size: 1.25rem;">
-          Da Sincronização Offline-First sobre HTTP à Performance Sub-Milissegundo em Memória Gerenciada
-        </p>
-
-        <div class="grid-3">
-          <div class="card couchdb-border">
-            <h3>🌐 A Crise do RDBMS Clássico</h3>
-            <ul class="tech-list">
-              <li>Limites físicos da escalabilidade vertical (<strong>Scale-Up</strong>) na Web 2.0 e Mobile.</li>
-              <li><strong>Impedância Objeto-Relacional:</strong> Custo de fragmentar agregados em dezenas de tabelas normalizadas.</li>
-              <li>Bloqueios pessimistas (2PL) inviáveis em topologias geograficamente distribuídas.</li>
-            </ul>
+        
+        <div class="cover-hero-container">
+          <div class="cover-badge-pill">
+            <span class="cover-badge-dot"></span>
+            Seminário de Bancos de Dados Avançados • Engenharia & Sistemas Distribuídos
           </div>
 
-          <div class="card couchbase-border">
-            <h3>📄 O Paradigma Documental JSON</h3>
-            <ul class="tech-list">
-              <li>Documentos auto-contidos em <strong>JSON</strong> (Arrays e Objetos aninhados).</li>
-              <li><strong>Localidade de Dados:</strong> Leitura de um agregado completo em um único I/O.</li>
-              <li>Evolução ágil de schema (<em>Schema-on-read</em>) sem <code class="inline">ALTER TABLE</code> bloqueante.</li>
-            </ul>
+          <h1 class="cover-title-main">
+            <span class="gradient-text-orange">Apache CouchDB</span>
+            <span class="cover-vs-circle">VS</span>
+            <span class="gradient-text-blue">Couchbase Server</span>
+          </h1>
+
+          <p class="cover-tagline">
+            Da Sincronização <strong>Offline-First</strong> sobre HTTP à Performance <strong>Sub-Milissegundo</strong> em Memória Gerenciada
+          </p>
+
+          <div class="cover-duel-grid">
+            <div class="cover-duel-card couchdb-card">
+              <div class="cover-duel-header">
+                <span class="cover-duel-title" style="color:var(--couchdb-orange);">Apache CouchDB</span>
+                <span class="cover-duel-pill orange">AP • REST • MVCC</span>
+              </div>
+              <ul class="tech-list">
+                <li>Motor imutável <strong>Append-Only B+Tree</strong> em Erlang.</li>
+                <li>API nativa 100% <strong>HTTP/JSON</strong> (porta <code class="inline">5984</code>).</li>
+                <li>Sincronização bidirecional na borda via <strong>PouchDB</strong>.</li>
+              </ul>
+            </div>
+
+            <div class="cover-duel-card couchbase-card">
+              <div class="cover-duel-header">
+                <span class="cover-duel-title" style="color:var(--couchbase-blue);">Couchbase Server</span>
+                <span class="cover-duel-pill blue">CP • RAM • SQL++</span>
+              </div>
+              <ul class="tech-list">
+                <li>Arquitetura <strong>Memory-First</strong> com latência sub-milissegundo.</li>
+                <li>Particionamento estático em <strong>1024 vBuckets</strong> (Single-Hop).</li>
+                <li>Linguagem <strong>N1QL (SQL++)</strong> com ANSI JOINs e índices GSI.</li>
+              </ul>
+            </div>
           </div>
 
-          <div class="card emerald-border">
-            <h3>👥 Roteiro da Equipe (7 Integrantes)</h3>
-            <ul class="tech-list">
-              <li><strong>Int. 1:</strong> Genealogia Histórica & Bifurcação</li>
-              <li><strong>Int. 2:</strong> Motor Interno Apache CouchDB</li>
-              <li><strong>Int. 3:</strong> Motor Interno Couchbase Server</li>
-              <li><strong>Int. 4 & 5:</strong> Casos de Uso, Mercado & Trade-offs</li>
-              <li><strong>Int. 6:</strong> Matriz Comparativa (CAP / Latência)</li>
-              <li><strong>Int. 7:</strong> Workshop ao Vivo (Docker + Código)</li>
-            </ul>
+          <div class="cover-team-strip">
+            <div class="cover-team-badge"><span class="cover-team-num">1</span> Int. 1: Genealogia & Filosofia</div>
+            <div class="cover-team-badge"><span class="cover-team-num">2</span> Int. 2: Motor CouchDB</div>
+            <div class="cover-team-badge"><span class="cover-team-num">3</span> Int. 3: Motor Couchbase</div>
+            <div class="cover-team-badge"><span class="cover-team-num">4</span> Int. 4: Mercado CouchDB</div>
+            <div class="cover-team-badge"><span class="cover-team-num">5</span> Int. 5: Mercado Couchbase</div>
+            <div class="cover-team-badge"><span class="cover-team-num">6</span> Int. 6: Matriz Comparativa</div>
+            <div class="cover-team-badge"><span class="cover-team-num">7</span> Int. 7: Workshop ao Vivo</div>
           </div>
         </div>
+
       </section>
 
       <!-- =========================================================
